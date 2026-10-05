@@ -337,7 +337,7 @@ function testEnregistrement() {
     distance: 1.5,
     destNom: 'Destinataire test',
     destPhone: '2290100000000',
-    paiement: 'Espèces au livreur',
+    paiement: 'Mobile Money',
     clientPhone: ''
   };
   return doPost({ postData: { contents: JSON.stringify(faux) } }).getContent();

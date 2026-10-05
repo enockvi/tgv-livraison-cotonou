@@ -232,7 +232,7 @@ export default function App() {
                 <div className="w-6 h-6 rounded-full bg-brand-soft text-brand flex items-center justify-center flex-shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
-                <span>Paiement en mains propres à la livraison ou Mobile Money</span>
+                <span>Paiement en espèces au coursier à la livraison ou Mobile Money</span>
               </li>
             </ul>
           </div>

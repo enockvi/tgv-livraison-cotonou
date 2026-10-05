@@ -28,7 +28,7 @@ Ce document détaille le workflow complet de l'application et les étapes pour l
    - Niveau d'urgence : *Standard* ou *Urgent Express*.
 5. **Étape 4 : Validation & Double Envoi** :
    - Génération d'une référence unique sécurisée : `TGV-YYMMDD-XXXX`.
-   - Choix du mode de paiement : *Espèces à la livraison* ou *Mobile Money*.
+   - Choix du mode de paiement : *Espèces au coursier (à la livraison)* ou *Mobile Money* (MTN MoMo / Moov Money), ce dernier sélectionné par défaut.
    - **Envoi WhatsApp instantané** : Ouvre WhatsApp pré-rempli vers la ligne officielle dispatch (`+229 01 42 01 69 86`).
    - **Envoi silencieux vers `/api/order`** : Sauvegarde la commande dans Google Sheets via la fonction Vercel.
    - **Gestion hors-ligne (PWA)** : si la connexion Internet coupe, la commande est mise en file d'attente (`localStorage`, clé `tgv_offline_queue`) et automatiquement renvoyée dès le retour du réseau. Un encart sur l'écran de confirmation précise que la commande est enregistrée hors-ligne, et la bannière affiche le nombre de commandes en attente (`pendingCount`).

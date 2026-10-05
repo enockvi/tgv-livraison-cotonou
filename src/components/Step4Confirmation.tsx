@@ -57,7 +57,8 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
   onOrderSaved,
   onResetOrder,
 }) => {
-  const [paymentMode, setPaymentMode] = useState<'cod' | 'momo'>('cod');
+  // Deux moyens de règlement possibles ; Mobile Money est sélectionné par défaut.
+  const [paymentMode, setPaymentMode] = useState<'cod' | 'momo'>('momo');
   const [isSending, setIsSending] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
@@ -87,7 +88,11 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       tarifDisponible
         ? `💰 *Tarif officiel* : ${formatFCFA(tarif)}`
         : '💰 *Tarif* : à confirmer par la régulation (liaison hors grille)',
-      `💳 *Paiement* : ${paymentMode === 'cod' ? 'Espèces au livreur' : 'Mobile Money (MTN/Moov)'}`,
+      `💳 *Paiement* : ${
+        paymentMode === 'momo'
+          ? 'Mobile Money (MTN/Moov) — réglé avant le déplacement du livreur'
+          : 'Espèces remises au livreur à la livraison'
+      }`,
     ];
 
     if (note.trim()) {
@@ -142,7 +147,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
       destPhone: recipientPhone,
       // Mode de paiement collecté à l'écran 4 : sans cette ligne, la colonne
       // « Paiement » de la feuille reste vide.
-      paiement: paymentMode === 'cod' ? 'Espèces au livreur' : 'Mobile Money',
+      paiement: paymentMode === 'momo' ? 'Mobile Money' : 'Espèces au livreur',
       // Alerte côté Vercel (logs) : le tarif n'a pas été trouvé dans la grille officielle.
       tarifEstime: !routeDetails.isExactSheetRoute,
     });
@@ -412,7 +417,9 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
           <div>
             <span className="text-xs text-muted block font-medium">Tarif officiel</span>
             <span className="text-[11px] text-brand font-semibold">
-              Paiement direct au coursier
+              {paymentMode === 'momo'
+                ? 'Paiement Mobile Money avant déplacement'
+                : 'Paiement en espèces à la livraison'}
             </span>
           </div>
           <span className="font-sora font-extrabold text-2xl text-heading">
@@ -421,7 +428,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         </div>
       </div>
 
-      {/* Payment Options (Règlement au livreur) */}
+      {/* Règlement au coursier (à la livraison) — Mobile Money par défaut */}
       <div className="space-y-2">
         <label className="block text-xs font-bold uppercase tracking-wider text-muted">
           Règlement au coursier (à la livraison)
@@ -485,9 +492,14 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
             </div>
           </button>
         </div>
+        <p className="text-[11px] font-semibold text-brand leading-snug">
+          {paymentMode === 'momo'
+            ? 'Mobile Money : la course est payée avant tout déplacement du livreur.'
+            : 'Espèces : le montant est remis au livreur à la livraison.'}
+        </p>
       </div>
 
-      {/* Primary Action Button: WhatsApp avec prix incrusté (Action 2 demandée) */}
+      {/* Action principale : lancer la course (transmission WhatsApp à la régulation) */}
       <div className="space-y-2 pt-2">
         <button
           type="button"
@@ -501,15 +513,21 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
           {isSending ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Préparation du message...</span>
+              <span>Lancement de la course...</span>
             </>
           ) : (
             <>
               <MessageCircle className="w-5 h-5 fill-white text-brand" />
-              <span>{tarifDisponible ? `Envoyer sur WhatsApp · ${tarifAffiche}` : 'Envoyer sur WhatsApp'}</span>
+              <span>
+                {tarifDisponible ? `Lancer la course · ${tarifAffiche}` : 'Lancer la course'}
+              </span>
             </>
           )}
         </button>
+
+        <p className="text-[11px] text-muted text-center px-1 leading-snug">
+          La course part vers la régulation TGV via WhatsApp, où vous validez l'envoi.
+        </p>
 
         <div className="flex items-center justify-center text-xs text-muted px-1">
           <a
