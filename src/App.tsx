@@ -11,7 +11,6 @@ import { Step2Location } from './components/Step2Location';
 import { Step3Notes } from './components/Step3Notes';
 import { Step4Confirmation } from './components/Step4Confirmation';
 import { OrderHistoryModal } from './components/OrderHistoryModal';
-import { WorkflowDocsModal } from './components/WorkflowDocsModal';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
   WifiOff,
@@ -21,7 +20,6 @@ import {
   MapPin,
   PhoneCall,
   Sparkles,
-  HelpCircle,
 } from 'lucide-react';
 
 const STORAGE_ORDERS_KEY = 'tgv_orders_history';
@@ -102,7 +100,6 @@ export default function App() {
   });
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
 
   const { isOnline, pendingCount } = useOnlineStatus();
 
@@ -240,7 +237,7 @@ export default function App() {
             </ul>
           </div>
 
-          {/* Hotline & Workflow action in left sidebar */}
+          {/* Hotline & assistance (colonne de gauche) */}
           <div className="p-5 rounded-3xl bg-brand-deep text-white space-y-3.5 shadow-lg">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-accent">
@@ -264,15 +261,6 @@ export default function App() {
                 <PhoneCall className="w-3.5 h-3.5 text-accent" />
               </a>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setIsWorkflowOpen(true)}
-              className="w-full mt-2 py-2 px-3 rounded-xl bg-accent text-heading font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-accent-bright transition cursor-pointer"
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Voir le workflow & déploiement Vercel</span>
-            </button>
           </div>
         </aside>
 
@@ -289,7 +277,6 @@ export default function App() {
               onToggleTheme={handleToggleTheme}
               onBack={() => setStep((s) => Math.max(1, s - 1))}
               onOpenHistory={() => setIsHistoryOpen(true)}
-              onOpenWorkflow={() => setIsWorkflowOpen(true)}
               pastOrdersCount={pastOrders.length}
               onReplaySplash={() => setShowSplash(true)}
             />
@@ -352,16 +339,10 @@ export default function App() {
             </div>
 
             {/* Safe Bottom padding & subtle copyright */}
-            <footer className="px-6 py-3 border-t border-line/40 text-center text-[10px] text-muted flex flex-col sm:flex-row items-center justify-between gap-1">
+            <footer className="px-6 py-3 border-t border-line/40 text-center text-[10px] text-muted">
               <span>
                 TGV Livraison · Siège : <strong className="font-bold">Akpakpa Kpondéhou</strong>
               </span>
-              <button
-                onClick={() => setIsWorkflowOpen(true)}
-                className="underline hover:text-brand"
-              >
-                Guide Workflow
-              </button>
             </footer>
           </div>
         </main>
@@ -377,11 +358,6 @@ export default function App() {
         onClose={() => setIsHistoryOpen(false)}
         onClearHistory={handleClearHistory}
         onReorder={handleReorder}
-      />
-
-      <WorkflowDocsModal
-        isOpen={isWorkflowOpen}
-        onClose={() => setIsWorkflowOpen(false)}
       />
 
       {/* Bandeau de mise à jour PWA / disponibilité hors-ligne */}

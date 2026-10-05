@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Clock, HelpCircle, PhoneCall, Smartphone, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Clock, PhoneCall, Smartphone, Sun, Moon } from 'lucide-react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { triggerRipple } from '../utils/ripple';
 import { PWAInstallModal } from './PWAInstallModal';
@@ -11,7 +11,6 @@ interface NavbarProps {
   onToggleTheme: () => void;
   onBack: () => void;
   onOpenHistory: () => void;
-  onOpenWorkflow: () => void;
   pastOrdersCount: number;
   onReplaySplash: () => void;
 }
@@ -22,7 +21,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleTheme,
   onBack,
   onOpenHistory,
-  onOpenWorkflow,
   pastOrdersCount,
   onReplaySplash,
 }) => {
@@ -92,16 +90,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="sm:hidden">Installer</span>
                 </button>
               )}
-
-            {/* Workflow documentation button */}
-            <button
-              onClick={onOpenWorkflow}
-              className="p-2 rounded-xl text-muted hover:text-heading hover:bg-brand-soft transition cursor-pointer"
-              title="Workflow complet de l'application & Vercel"
-              aria-label="Workflow et aide"
-            >
-              <HelpCircle className="w-5 h-5" />
-            </button>
 
             {/* Bascule mode clair / sombre (F16) */}
             <button
