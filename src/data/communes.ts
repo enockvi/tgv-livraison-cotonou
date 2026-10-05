@@ -152,7 +152,13 @@ export function liaisonsDepuis(depName: string): Liaison[] {
 
 export function estLiaisonOfficielle(a: string, b: string): boolean {
   if (!a || !b) return false;
-  return Boolean(ROUTES_LOOKUP[getRouteKey(a, b)]);
+  const key = getRouteKey(a, b);
+  // Table FUSIONNÉE : la grille live d'abord (lignes ajoutées ou modifiées dans le Sheet),
+  // puis la matrice du build. Une liaison présente uniquement dans le live est donc reconnue
+  // tout de suite, sans attendre un redéploiement — cohérent avec liaisonsDepuis() et
+  // calculateRouteDetails().
+  const live = getLiveRoutes();
+  return Boolean((live && live[key]) || ROUTES_LOOKUP[key]);
 }
 
 /**

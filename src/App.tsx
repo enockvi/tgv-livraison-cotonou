@@ -12,6 +12,7 @@ import { Step3Notes } from './components/Step3Notes';
 import { Step4Confirmation } from './components/Step4Confirmation';
 import { OrderHistoryModal } from './components/OrderHistoryModal';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { useLiveRoutesVersion } from './hooks/useLiveRoutesVersion';
 import {
   WifiOff,
   CheckCircle,
@@ -45,6 +46,11 @@ export default function App() {
   const [recipientPhone, setRecipientPhone] = useState('');
   const [urgent, setUrgent] = useState(0);
   const [orderId, setOrderId] = useState(() => generateOrderId());
+
+  // Re-rend App (donc TOUTES les étapes) dès que la grille tarifaire live change : un tarif
+  // modifié dans le Sheet met à jour le récapitulatif et le message WhatsApp sans action
+  // de l'utilisateur, même s'il était déjà à l'étape 4 au moment du changement.
+  useLiveRoutesVersion();
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     try {

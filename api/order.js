@@ -3,7 +3,7 @@
 // La validation et la normalisation vivent dans api/_order-normalize.js, PARTAGÉES avec le middleware
 // de développement Vite (vite.config.ts) : une seule source de vérité, comportement identique en local
 // et en production (P0 architecture).
-import { buildOrderRow } from './_order-normalize.js';
+import { buildOrderRow, verifierTarifOfficiel } from './_order-normalize.js';
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
@@ -19,6 +19,42 @@ export default async function handler(req, res) {
     if (!built.ok) return res.status(built.status).json({ ok: false, error: built.error });
 
     const { row } = built;
+
+    // Contrôle serveur du tarif : la feuille ne doit JAMAIS enregistrer un prix périmé venu du
+    // cache d'un navigateur. Le prix officiel de la grille live est donc appliqué en priorité,
+    // et tout écart est journalisé. Non bloquant : en cas de panne amont, le tarif reçu reste.
+    if (!built.isDevis) {
+      const controle = await verifierTarifOfficiel(row);
+      if (controle.officiel) {
+        if (controle.corrige) {
+          console.warn(
+            '[TGV] Tarif client divergent corrigé : réf.',
+            row.id,
+            row.dep,
+            '->',
+            row.dst,
+            '| client',
+            row.tarif,
+            'FCFA | officiel',
+            controle.tarif,
+            'FCFA'
+          );
+        }
+        row.tarif = controle.tarif;
+        row.distance = controle.distance;
+      } else {
+        console.warn(
+          '[TGV] Liaison absente de la grille live : tarif client conservé (à confirmer) : réf.',
+          row.id,
+          row.dep,
+          '->',
+          row.dst,
+          '|',
+          row.tarif,
+          'FCFA'
+        );
+      }
+    }
 
     // Alerte opérateur dans les logs Vercel : plus de facturation silencieuse d'un trajet inconnu.
     if (d.tarifEstime) {

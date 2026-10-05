@@ -1,17 +1,21 @@
 // Google Apps Script : reçoit les commandes et les ajoute dans la feuille « Commandes »,
-// renvoie les statuts en direct (action: 'status') et expose un healthcheck GET.
+// renvoie les statuts en direct (action: 'status'), expose la grille tarifaire live
+// (action: 'routes') avec son empreinte (action: 'routes_version') et un healthcheck GET.
 //
 // ⚠️ AUCUN SECRET DANS CE FICHIER : le token est lu dans les propriétés du script.
 //    À faire UNE SEULE FOIS dans l'éditeur Apps Script, puis plus jamais dans le code :
 //      configurerToken('<la même valeur que SHEET_TOKEN sur Vercel>')
 //    (équivalent manuel : Projet > Paramètres du projet > Propriétés du script > SHEET_TOKEN)
 
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const PROP_TOKEN = 'SHEET_TOKEN';
 const PROP_ONGLET_TARIFS = 'ONGLET_TARIFS'; // nom de l'onglet tarifaire, si l'auto-détection échoue
 const ONGLET_TARIFS_DEFAUT = 'Tarifs';
 const CACHE_ROUTES_KEY = 'routes_cache_v2';
-const CACHE_ROUTES_TTL = 600; // 10 min
+const CACHE_ROUTES_VERSION_KEY = 'routes_version_v2';
+// 60 s : latence maximale d'un tarif modifié. Le trigger installable `purgerCacheRoutes`
+// (voir plus bas) ramène cette latence à quasi zéro pour la première requête suivante.
+const CACHE_ROUTES_TTL = 60;
 const CACHE_ROUTES_MAX = 90000; // au-delà, la valeur dépasse la limite de CacheService (100 Ko)
 const ONGLET = 'Commandes';
 const STATUTS = ['Nouvelle', 'En cours', 'Livrée', 'Annulée'];
@@ -100,8 +104,12 @@ function doPost(e) {
     // 1) Lecture en direct du statut des commandes (sans verrou, avec cache 20 s)
     if (d.action === 'status') return repondreStatuts(d);
 
-    // 2) Grille tarifaire live (onglet de tarifs), avec cache 10 min
+    // 2) Grille tarifaire live (onglet de tarifs), avec cache court
     if (d.action === 'routes') return repondreRoutes();
+
+    // 2 bis) Empreinte de la grille (quelques octets) : permet au client de ne retélécharger
+    //        la grille complète que si les tarifs ont réellement changé.
+    if (d.action === 'routes_version') return repondreRoutesVersion();
 
     // 3) Enregistrement d'une nouvelle commande (avec verrou d'écriture)
     //    Garde-fou : une action inconnue ou une charge utile incomplète ne doit JAMAIS créer
@@ -237,9 +245,64 @@ function repondreRoutes() {
     try { return sortie(JSON.parse(enCache)); } catch (err) { /* cache corrompu : on recalcule */ }
   }
 
+  const grille = construireGrilleRoutes();
+  if (!grille.ok) return sortie(grille);
+
+  // Le cache complet et l'empreinte partagent le même TTL : ils expirent donc ensemble,
+  // et le client ne peut jamais recevoir une empreinte plus fraîche que la grille servie.
+  const texte = JSON.stringify(grille);
+  if (texte.length < CACHE_ROUTES_MAX) {
+    try {
+      cache.put(CACHE_ROUTES_KEY, texte, CACHE_ROUTES_TTL);
+      cache.put(CACHE_ROUTES_VERSION_KEY, grille.hash, CACHE_ROUTES_TTL);
+    } catch (err) {}
+  }
+  return sortie(grille);
+}
+
+/**
+ * Réponse ultra-légère : uniquement l'empreinte des tarifs (12 caractères hexadécimaux).
+ * Le client l'interroge toutes les 5 minutes et à chaque reprise de focus ; il ne
+ * retélécharge la grille complète que si l'empreinte a changé. Côté Vercel la route est
+ * mise en cache 60 s, donc Apps Script n'est sollicité qu'une fois par minute et par POP :
+ * le coût réseau reste négligeable même avec beaucoup d'utilisateurs.
+ */
+function repondreRoutesVersion() {
+  const cache = CacheService.getScriptCache();
+  const enCache = cache.get(CACHE_ROUTES_VERSION_KEY);
+  if (enCache) return sortie({ ok: true, version: enCache, cached: true });
+
+  const grille = construireGrilleRoutes();
+  if (!grille.ok) return sortie(grille);
+  try { cache.put(CACHE_ROUTES_VERSION_KEY, grille.hash, CACHE_ROUTES_TTL); } catch (err) {}
+  return sortie({
+    ok: true,
+    version: grille.hash,
+    count: grille.count,
+    generatedAt: grille.generatedAt
+  });
+}
+
+/**
+ * Empreinte stable des tarifs : MD5 des SEULES lignes de tarifs (ni date, ni compteur).
+ * Deux grilles identiques produisent donc la même empreinte, ce qui évite tout
+ * rafraîchissement inutile côté client.
+ */
+function empreinteRoutes(routes) {
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, JSON.stringify(routes));
+  return digest.slice(0, 6).map(function (b) {
+    return ('0' + (b & 0xff).toString(16)).slice(-2);
+  }).join('');
+}
+
+/**
+ * Construit la grille depuis l'onglet de tarifs. Ne touche PAS au cache : chaque point
+ * d'entrée (routes / routes_version) décide lui-même de ce qu'il met en cache.
+ */
+function construireGrilleRoutes() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = trouverOngletTarifs(ss);
-  if (!sh) return sortie({ ok: false, error: 'onglet_tarifs_introuvable' });
+  if (!sh) return { ok: false, error: 'onglet_tarifs_introuvable' };
 
   const entete = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(sansAccent);
   const iDep = entete.map(function (c, i) { return c.indexOf('depart') !== -1 ? i : -1; }).filter(function (i) { return i >= 0; })[0];
@@ -248,7 +311,7 @@ function repondreRoutes() {
   const iTarif = entete.map(function (c, i) { return c.indexOf('tarif') !== -1 ? i : -1; }).filter(function (i) { return i >= 0; })[0];
 
   if (iDep === undefined || iDst === undefined || iDist === undefined || iTarif === undefined) {
-    return sortie({ ok: false, error: 'colonnes_tarifs_introuvables', entete: entete });
+    return { ok: false, error: 'colonnes_tarifs_introuvables', entete: entete };
   }
 
   const nbLignes = sh.getLastRow() - 1;
@@ -263,19 +326,43 @@ function repondreRoutes() {
     routes.push([dep, dst, dist, tarif]);
   });
 
-  const reponse = {
+  return {
     ok: true,
     version: VERSION,
+    hash: empreinteRoutes(routes),
     generatedAt: new Date().toISOString(),
     onglet: sh.getName(),
     count: routes.length,
     routes: routes
   };
-  const texte = JSON.stringify(reponse);
-  if (texte.length < CACHE_ROUTES_MAX) {
-    try { cache.put(CACHE_ROUTES_KEY, texte, CACHE_ROUTES_TTL); } catch (err) {}
-  }
-  return sortie(reponse);
+}
+
+/**
+ * Vide immédiatement les caches de la grille tarifaire. Branché sur un trigger installable
+ * `onEdit` : modifier un tarif dans la feuille se propage donc sans attendre l'expiration
+ * du cache — et sans jamais toucher à l'onglet « Commandes ».
+ */
+function purgerCacheRoutes() {
+  try {
+    const cache = CacheService.getScriptCache();
+    cache.remove(CACHE_ROUTES_KEY);
+    cache.remove(CACHE_ROUTES_VERSION_KEY);
+  } catch (err) {}
+}
+
+/**
+ * À exécuter UNE FOIS depuis l'éditeur (menu Exécuter) : installe le trigger installable
+ * qui purge le cache des tarifs à chaque édition de la feuille.
+ * Un trigger *simple* `onEdit` n'a pas les autorisations nécessaires pour CacheService.
+ */
+function installerTriggerPurgeRoutes() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const existants = ScriptApp.getProjectTriggers().filter(function (t) {
+    return t.getHandlerFunction() === 'purgerCacheRoutes';
+  });
+  if (existants.length > 0) return 'Trigger de purge déjà installé.';
+  ScriptApp.newTrigger('purgerCacheRoutes').forSpreadsheet(ss).onEdit().create();
+  return 'Trigger installé : le cache des tarifs est purgé à chaque édition de la feuille.';
 }
 
 // ---------------------------- Feuille ----------------------------

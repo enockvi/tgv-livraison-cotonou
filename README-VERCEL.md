@@ -52,8 +52,9 @@ Ce document détaille le workflow complet de l'application et les étapes pour l
    - Qui a accès : **Tout le monde** (Anyone)
 6. Cliquez sur Déployer, accordez les autorisations Google, puis copiez l'URL de l'application Web qui se termine par `/exec`.
 7. Vérifiez le déploiement en ouvrant cette URL `/exec` dans un navigateur : vous devez obtenir
-   `{"ok":true,"version":"1.2.0","token":"configure",...}`. Si vous lisez `"token":"absent"`, la propriété `SHEET_TOKEN` n'a pas été enregistrée.
-8. Test facultatif : exécutez la fonction `testEnregistrement` dans l'éditeur pour injecter une ligne de test (Réf. `TGV-000000-TEST`) et vérifier que les 17 colonnes se remplissent correctement.
+   `{"ok":true,"version":"1.3.0","token":"configure",...}`. Si vous lisez `"token":"absent"`, la propriété `SHEET_TOKEN` n'a pas été enregistrée.
+8. **Propagation immédiate des tarifs** : exécutez une seule fois la fonction `installerTriggerPurgeRoutes`. Le trigger installable vide le cache de la grille à chaque édition de la feuille : un tarif modifié devient visible en ~1 minute au lieu d'attendre l'expiration du cache (60 s) — et sans jamais toucher à l'onglet « Commandes ». Contrôle : l'entrée `purgerCacheRoutes` doit apparaître dans **Déclencheurs** (barre latérale de l'éditeur).
+9. Test facultatif : exécutez la fonction `testEnregistrement` dans l'éditeur pour injecter une ligne de test (Réf. `TGV-000000-TEST`) et vérifier que les 17 colonnes se remplissent correctement.
 
 **Colonnes de l'onglet « Commandes »** (créées automatiquement, ordre garanti sans décalage) :
 
@@ -104,11 +105,13 @@ En cas de panne réseau, de CSV tronqué ou de variable absente, la grille du d�
 **le build ne casse jamais** à cause du Sheet. Contrôle local : `npm run sync-sheet`, puis `npm run test:routes`.
 
 ### 2. En direct (prix modifiés sans redéployer)
-- `apps-script/Code.gs` expose `action: 'routes'` : lecture de l'onglet tarifaire (auto-détecté via les en-têtes « Départ » / « Arrivée », ou forcé par la propriété de script `ONGLET_TARIFS`), avec cache de 10 minutes.
-- `api/routes.js` (fonction Vercel) relaie cette grille et la met en cache CDN 30 minutes (`s-maxage=1800`).
-- L'application appelle `/api/routes` au démarrage (`src/data/routesLive.ts`), mémorise le résultat 6 h dans `localStorage` et **retombe toujours** sur la matrice embarquée en cas d'échec.
+- `apps-script/Code.gs` expose `action: 'routes'` : lecture de l'onglet tarifaire (auto-détecté via les en-têtes « Départ » / « Arrivée », ou forcé par la propriété de script `ONGLET_TARIFS`), avec un cache court de **60 s**. Le trigger installable `installerTriggerPurgeRoutes` (voir Étape 1.8) purge ce cache à chaque édition de la feuille.
+- `apps-script/Code.gs` expose aussi `action: 'routes_version'` : l'**empreinte MD5** des seules lignes de tarifs (12 caractères hexadécimaux). Deux grilles identiques produisent la même empreinte, ce qui évite tout rafraîchissement inutile.
+- `api/routes.js` relaie la grille et la met en cache CDN **60 s** (`s-maxage=60`, `stale-while-revalidate=60`). `api/routes-version.js` relaie l'empreinte avec le même cache : Apps Script n'est donc sollicité qu'une fois par minute et par POP, quel que soit le trafic.
+- L'application appelle `/api/routes` au démarrage (`src/data/routesLive.ts`), mémorise le résultat **20 min** dans `localStorage` et **retombe toujours** sur la matrice embarquée en cas d'échec. Elle vérifie ensuite l'empreinte via `/api/routes-version` **toutes les 5 minutes** et **à chaque reprise de focus** (retour sur l'onglet ou sur la PWA installée) : la grille complète n'est retéléchargée que si les tarifs ont réellement changé.
+- Le **prix enregistré dans la feuille est autoritatif** : `api/order.js` confronte le tarif envoyé par le navigateur à la grille live (`verifierTarifOfficiel`, grille conservée 10 min en mémoire par instance) et **corrige** tout écart, en le journalisant dans les logs Vercel. Un client dont le cache n'a pas encore expiré ne peut donc plus faire enregistrer un prix périmé.
 
-Conséquence : modifier un tarif dans Google Sheets se reflète en quelques minutes sans redéploiement, et l'application reste factuelle hors-ligne.
+Conséquence : modifier un tarif dans Google Sheets se reflète en **1 à 3 minutes** sans redéploiement (quasi instantanément dès que l'utilisateur revient sur l'application), la feuille ne peut plus enregistrer un prix obsolète, et l'application reste factuelle hors-ligne.
 
 ### 3. Grille stricte : le client ne peut choisir qu'une liaison du CSV
 

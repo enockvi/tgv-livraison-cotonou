@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { fetchRoutesLive } from './api/routes.js';
-import { buildOrderRow } from './api/_order-normalize.js';
+import { fetchRoutesLive, fetchRoutesVersion } from './api/routes.js';
+import { buildOrderRow, verifierTarifOfficiel } from './api/_order-normalize.js';
 
 // Local dev middleware for /api/order matching Vercel Serverless Function behavior
 function orderApiPlugin(): Plugin {
@@ -21,6 +21,12 @@ function orderApiPlugin(): Plugin {
         };
       }
       server.middlewares.use('/api/order', (req, res, next) => {
+        // Mêmes variables d'environnement que le plugin /api/routes : sans cette hydratation,
+        // le contrôle serveur du tarif ne pourrait pas joindre la grille officielle en dev.
+        const envOrder = loadEnv(server.config.mode, process.cwd(), '');
+        if (!process.env.SHEET_WEBHOOK_URL && envOrder.SHEET_WEBHOOK_URL) process.env.SHEET_WEBHOOK_URL = envOrder.SHEET_WEBHOOK_URL;
+        if (!process.env.SHEET_TOKEN && envOrder.SHEET_TOKEN) process.env.SHEET_TOKEN = envOrder.SHEET_TOKEN;
+
         if (req.method !== 'POST') {
           res.statusCode = 405;
           res.setHeader('Content-Type', 'application/json');
@@ -48,6 +54,26 @@ function orderApiPlugin(): Plugin {
             }
 
             const { row } = built;
+
+            // Contrôle serveur du tarif, PARTAGÉ avec la production (api/order.js) : le prix
+            // officiel de la grille live remplace toujours un prix client potentiellement périmé.
+            if (!built.isDevis) {
+              const controle = await verifierTarifOfficiel(row);
+              if (controle.officiel) {
+                if (controle.corrige) {
+                  console.warn(
+                    '[TGV] Tarif client divergent corrigé (dev) : réf.',
+                    row.id,
+                    row.tarif,
+                    '->',
+                    controle.tarif,
+                    'FCFA'
+                  );
+                }
+                row.tarif = controle.tarif;
+                row.distance = controle.distance;
+              }
+            }
 
             if (d.tarifEstime) {
               console.warn(
@@ -171,6 +197,19 @@ function routesApiPlugin(): Plugin {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
         res.statusCode = data.ok ? 200 : 200; // jamais d'erreur bloquante en dev
+        res.end(JSON.stringify(data));
+      });
+
+      // Parité avec api/routes-version.js : empreinte seule, jamais d'erreur bloquante en dev.
+      server.middlewares.use('/api/routes-version', async (req, res) => {
+        const env = loadEnv(server.config.mode, process.cwd(), '');
+        if (!process.env.SHEET_WEBHOOK_URL && env.SHEET_WEBHOOK_URL) process.env.SHEET_WEBHOOK_URL = env.SHEET_WEBHOOK_URL;
+        if (!process.env.SHEET_TOKEN && env.SHEET_TOKEN) process.env.SHEET_TOKEN = env.SHEET_TOKEN;
+
+        const data = await fetchRoutesVersion();
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Cache-Control', 'no-store');
+        res.statusCode = 200;
         res.end(JSON.stringify(data));
       });
     },

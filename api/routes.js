@@ -1,12 +1,17 @@
 // Fonction Vercel : renvoie la grille tarifaire LIVE, lue dans l'onglet de tarifs du Google Sheet
-// via Apps Script (action 'routes'). Résultat mis en cache par le CDN Vercel (s-maxage 30 min).
+// via Apps Script (action 'routes'). Résultat mis en cache par le CDN Vercel (s-maxage 60 s).
 //
 // L'application n'est jamais bloquée par cette route : en cas d'échec (hors-ligne, token absent,
 // onglet introuvable), elle bascule sur la matrice embarquée `src/data/routesMatrix.json`,
 // elle-même rafraîchie à chaque build par `npm run prebuild`.
 
-const CACHE_SUCCES = 'public, max-age=300, s-maxage=1800, stale-while-revalidate=86400';
-const TIMEOUT_MS = 15000;
+// Fenêtres volontairement courtes (60 s) : un tarif modifié dans le Sheet doit devenir visible
+// en une à trois minutes sans redéploiement. `stale-while-revalidate` est aligné sur la même
+// durée pour qu'une grille périmée ne puisse jamais être servie plus d'une minute de plus.
+const CACHE_SUCCES = 'public, max-age=60, s-maxage=60, stale-while-revalidate=60';
+// Doit rester STRICTEMENT inférieur à la durée maximale d'une fonction Vercel (10 s par défaut,
+// aucun `maxDuration` déclaré dans vercel.json) : sinon l'abort ne se déclenche jamais.
+const TIMEOUT_MS = 8000;
 
 /**
  * Interroge Apps Script et normalise la réponse.
@@ -48,10 +53,49 @@ export async function fetchRoutesLive() {
     return {
       ok: true,
       source: 'sheet',
+      // Empreinte des tarifs (MD5 court, calculée par Apps Script) : le client la mémorise et
+      // ne retélécharge la grille complète que lorsqu'elle change (voir /api/routes-version).
+      version: data.hash || null,
       generatedAt: data.generatedAt || null,
       onglet: data.onglet || null,
       count: routes.length,
       routes: routes
+    };
+  } catch (e) {
+    return { ok: false, error: 'upstream_error' };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Récupère UNIQUEMENT l'empreinte de la grille tarifaire (action Apps Script 'routes_version').
+ * Charge utile de quelques octets : c'est cette fonction qui sert la route légère
+ * /api/routes-version, interrogée par le client toutes les 5 minutes et à la reprise de focus.
+ */
+export async function fetchRoutesVersion() {
+  const url = process.env.SHEET_WEBHOOK_URL;
+  const token = process.env.SHEET_TOKEN;
+  if (!url || !token) return { ok: false, error: 'not_configured' };
+
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ token: token, action: 'routes_version' }),
+      signal: ctl.signal
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!data || !data.ok || !data.version) {
+      return { ok: false, error: (data && data.error) || 'sheet_error' };
+    }
+    return {
+      ok: true,
+      version: String(data.version),
+      count: Number(data.count) || 0,
+      generatedAt: data.generatedAt || null
     };
   } catch (e) {
     return { ok: false, error: 'upstream_error' };

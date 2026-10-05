@@ -4,6 +4,15 @@
 // Objectif (P0 architecture) : une seule source de vérité. Le comportement validé en local
 // est exactement celui exécuté en production — plus de dérive possible entre les deux.
 // Le préfixe « _ » empêche Vercel d'exposer ce fichier comme endpoint serverless.
+//
+// Le fichier porte aussi le CONTRÔLE SERVEUR DU TARIF (verifierTarifOfficiel) : le prix
+// enregistré dans la feuille ne doit jamais être un tarif périmé venu du cache d'un navigateur.
+import { fetchRoutesLive } from './routes.js';
+// Import CommonJS explicite (pas d'import nommé) : la forme est garantie quel que soit le
+// bundler utilisé par Vercel, et ce fichier n'est jamais embarqué dans le bundle navigateur.
+import routeNormalize from '../scripts/lib/route-normalize.cjs';
+
+const { getRouteKey } = routeNormalize;
 
 export const ZONES = ['cotonou', 'calavi', 'seme', 'portonovo', 'ouidah'];
 
@@ -105,4 +114,64 @@ export function buildOrderRow(d, token) {
   };
 
   return { ok: true, row, statut: row.statut, isDevis };
+}
+
+// ---------------------- Contrôle serveur du tarif (autoritatif) ----------------------
+
+/**
+ * Cache mémoire de la grille officielle, par instance de fonction « chaude » : évite de
+ * retélécharger les 843 lignes à chaque commande. Une instance qui vient de servir
+ * /api/routes réutilise ici la même grille.
+ */
+const GRILLE_TTL_MS = 10 * 60 * 1000;
+let grille = { at: 0, table: null };
+
+/** Table de correspondance « clé de paire normalisée → [distance, tarif] ». */
+async function chargerGrilleOfficielle() {
+  if (grille.table && Date.now() - grille.at < GRILLE_TTL_MS) return grille.table;
+
+  const data = await fetchRoutesLive();
+  // Panne amont (token absent, Apps Script indisponible) : on garde la dernière grille
+  // connue, ou `null` — dans les deux cas l'appelant n'écrit jamais un tarif inventé.
+  if (!data.ok || !Array.isArray(data.routes)) return grille.table;
+
+  const table = new Map();
+  data.routes.forEach((t) => {
+    table.set(getRouteKey(t[0], t[1]), [t[2], t[3]]);
+  });
+  grille = { at: Date.now(), table };
+  return table;
+}
+
+/**
+ * Confronte le tarif envoyé par le navigateur à la grille officielle.
+ *
+ * Un client peut encore servir un prix périmé (cache localStorage, onglet resté ouvert) :
+ * sans ce contrôle, la colonne « Tarif (FCFA) » enregistrerait ce montant obsolète. Ici le
+ * prix officiel gagne TOUJOURS lorsqu'il existe, et l'écart est journalisé pour l'opérateur.
+ *
+ * Cette fonction ne bloque jamais une commande : en cas de panne de la grille amont elle
+ * renvoie `{ officiel: false }` et l'appelant conserve le tarif reçu.
+ *
+ * @param {any} row ligne construite par buildOrderRow (dep, dst, tarif déjà normalisés)
+ * @returns {Promise<{officiel: false, corrige: false} | {officiel: true, corrige: boolean, tarif: number, distance: number}>}
+ */
+export async function verifierTarifOfficiel(row) {
+  try {
+    const table = await chargerGrilleOfficielle();
+    if (!table) return { officiel: false, corrige: false };
+
+    const match = table.get(getRouteKey(row.dep, row.dst));
+    if (!match) return { officiel: false, corrige: false };
+
+    const tarifClient = Number(row.tarif);
+    return {
+      officiel: true,
+      corrige: tarifClient !== match[1],
+      tarif: match[1],
+      distance: match[0],
+    };
+  } catch {
+    return { officiel: false, corrige: false };
+  }
 }
