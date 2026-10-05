@@ -1,61 +1,135 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Zap } from 'lucide-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface SplashIntroProps {
   onComplete: () => void;
 }
 
+/** Durée d'affichage du slogan une fois le motard arrivé au bout. */
+const HOLD_MS = 900;
+
+/** Marge (px) ajoutée de part et d'autre du trajet du motard. */
+const RIDER_MARGIN = 40;
+
+/**
+ * SplashIntro — portage fidèle de la maquette `Splashscreem.html` (racine du projet).
+ *
+ * Principes conservés à l'identique :
+ *  - scène en position absolue, route horizontale fixée à 52 % de la hauteur ;
+ *  - motard ancré sur la route (`bottom: calc(48% - 1px)`) et non dans le flux flex ;
+ *  - le titre est révélé par `clip-path` en fonction de la position exacte du motard ;
+ *  - typographie Sora 800 inclinée (`skewX(-9deg)`) avec tailles `clamp()` fluides ;
+ *  - durée proportionnelle à la largeur de l'écran ;
+ *  - `prefers-reduced-motion` court-circuite l'animation.
+ *
+ * Intégration applicative : un tap (ou Entrée / Espace / Échap) passe immédiatement
+ * à l'application ; sinon l'écran se termine seul après l'animation.
+ */
 export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
-  const [progress, setProgress] = useState(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const riderRef = useRef<HTMLDivElement>(null);
+  const wordRef = useRef<HTMLDivElement>(null);
 
-  // Le slogan n'est plus un état : il est dérivé de la progression (monotone).
-  // Il n'est donc plus une dépendance de l'effet, qui ne peut plus être relancé à 75 %
-  // de l'animation (c'était la cause de la barre qui reculait et du motard qui repartait).
-  const showTag = progress >= 0.75;
-
-  // Le callback du parent est lu via une ref : l'effet d'animation n'a plus aucune dépendance,
-  // il survit donc à un re-rendu de App (événement online/offline, thème, etc.).
+  const [tagVisible, setTagVisible] = useState(false);
+  const finishedRef = useRef(false);
+  const rafRef = useRef<number | undefined>(undefined);
+  const holdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  useEffect(() => {
-    let animationFrameId: number;
-    let endTimerId: ReturnType<typeof setTimeout> | undefined;
-    const duration = 2400; // ms
-    const startTime = performance.now();
+  const finish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const p = Math.min(elapsed / duration, 1);
-      setProgress(p);
+    const stage = stageRef.current;
+    const rider = riderRef.current;
+    const word = wordRef.current;
 
-      if (p < 1) {
-        animationFrameId = requestAnimationFrame(animate);
+    if (word) word.style.clipPath = 'none';
+    if (stage && rider) rider.style.transform = `translateX(${stage.clientWidth + 200}px)`;
+
+    setTagVisible(true);
+    holdRef.current = setTimeout(() => onCompleteRef.current(), HOLD_MS);
+  }, []);
+
+  const play = useCallback(() => {
+    if (finishedRef.current) return;
+
+    const stage = stageRef.current;
+    const rider = riderRef.current;
+    const word = wordRef.current;
+    if (!stage || !rider || !word) return;
+
+    const reduceMotion =
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      finish();
+      return;
+    }
+
+    const width = stage.clientWidth;
+    const riderWidth = rider.offsetWidth || 96;
+    const from = -riderWidth - RIDER_MARGIN;
+    const to = width + RIDER_MARGIN;
+    // Plus l'écran est large, plus le trajet dure (même courbe que la maquette).
+    const duration = 2200 + width * 0.9;
+    const start = performance.now();
+
+    // Boîte du titre mesurée AVANT l'animation : c'est elle qui détermine la découpe.
+    const wordBox = word.getBoundingClientRect();
+    const stageLeft = stage.getBoundingClientRect().left;
+
+    word.style.clipPath = 'inset(-12px 100% -12px 0)';
+
+    const frame = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const x = from + (to - from) * progress;
+      rider.style.transform = `translateX(${x}px)`;
+
+      const edge = x + riderWidth * 0.06 + stageLeft - wordBox.left;
+      const cut = Math.max(-20, Math.min(wordBox.width, wordBox.width - edge));
+      word.style.clipPath = `inset(-12px ${cut}px -12px 0)`;
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(frame);
       } else {
-        endTimerId = setTimeout(() => {
-          onCompleteRef.current();
-        }, 600);
+        finish();
       }
     };
 
-    animationFrameId = requestAnimationFrame(animate);
+    rafRef.current = requestAnimationFrame(frame);
+  }, [finish]);
+
+  // Démarrage après le chargement des polices : évite un reflow du titre en pleine animation.
+  useEffect(() => {
+    let cancelled = false;
+    let startTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const start = () => {
+      if (cancelled) return;
+      startTimer = setTimeout(() => {
+        if (!cancelled) play();
+      }, 250);
+    };
+
+    const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
+    if (fonts && fonts.ready) {
+      fonts.ready.then(start).catch(start);
+    } else {
+      start();
+    }
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      if (endTimerId !== undefined) clearTimeout(endTimerId);
+      cancelled = true;
+      if (startTimer !== undefined) clearTimeout(startTimer);
+      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
+      if (holdRef.current !== undefined) clearTimeout(holdRef.current);
     };
-  }, []);
-
-  // Accessibilité : si l'utilisateur limite les animations, on entre immédiatement dans l'app.
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      onCompleteRef.current();
-    }
-  }, []);
+  }, [play]);
 
   // Bloquer le défilement de l'arrière-plan tant que l'intro est affichée.
   useEffect(() => {
@@ -66,135 +140,148 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
     };
   }, []);
 
-  // Calculate cut percentage for the text reveal
-  const cutPercent = Math.max(0, 100 - progress * 130);
+  // Passer l'intro immédiatement (tap, Entrée, Espace ou Échap).
+  const skip = useCallback(() => {
+    if (finishedRef.current && holdRef.current === undefined) return;
+    if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
+    if (holdRef.current !== undefined) clearTimeout(holdRef.current);
+    finishedRef.current = true;
+    onCompleteRef.current();
+  }, []);
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Introduction TGV Livraison"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden select-none bg-brand-deep"
+      ref={stageRef}
+      role="button"
+      tabIndex={0}
+      aria-label="Introduction TGV Livraison. Touchez pour passer."
+      onClick={skip}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') {
+          event.preventDefault();
+          skip();
+        }
+      }}
+      className="fixed inset-0 z-50 overflow-hidden select-none cursor-pointer outline-none"
       style={{
         background:
-          'radial-gradient(circle at 50% 50%, rgba(70, 198, 48, 0.16) 0%, transparent 60%), linear-gradient(165deg, #0C6B32 0%, #07401F 55%, #042613 100%)',
+          'radial-gradient(circle at 50% 52%, rgba(70, 198, 48, 0.16), transparent 55%), linear-gradient(165deg, #0C6B32 0%, #07401F 55%, #052C16 100%)',
       }}
     >
-      {/* Background speed streaks */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-1/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" />
-        <div className="absolute top-3/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" />
+      {/* Route */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: 'max(12px, 4vw)',
+          right: 'max(12px, 4vw)',
+          top: '52%',
+          height: 1,
+          background: 'rgba(255, 255, 255, 0.16)',
+        }}
+      />
+
+      {/* Titre — révélé au passage du motard */}
+      <div
+        ref={wordRef}
+        style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: 'calc(48% + 10px)',
+          transform: 'translateX(-50%)',
+          whiteSpace: 'nowrap',
+          clipPath: 'inset(-12px 100% -12px 0)',
+        }}
+      >
+        <span
+          className="font-sora"
+          style={{
+            display: 'inline-block',
+            transform: 'skewX(-9deg)',
+            fontSize: 'clamp(28px, 9vw, 76px)',
+            lineHeight: 1.15,
+            fontWeight: 800,
+            letterSpacing: '-0.02em',
+            color: '#ffffff',
+          }}
+        >
+          TGV <b style={{ color: '#46C630', fontWeight: 'inherit' }}>Livraison</b>
+        </span>
       </div>
 
-      <div className="relative w-full max-w-2xl px-6 flex flex-col items-center">
-        {/* Road line */}
-        <div className="w-full h-[1px] bg-white/20 mb-8 relative">
-          <div
-            className="absolute top-0 bottom-0 bg-accent shadow-[0_0_8px_#46C630]"
-            style={{
-              left: 0,
-              width: `${progress * 100}%`,
-              transition: 'width 0.05s linear',
-            }}
-          />
-        </div>
+      {/* Slogan */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 'calc(52% + 22px)',
+          textAlign: 'center',
+          padding: '0 clamp(16px, 6vw, 32px)',
+          fontSize: 'clamp(13px, 3.8vw, 18px)',
+          fontWeight: 500,
+          color: 'rgba(255, 255, 255, 0.75)',
+          opacity: tagVisible ? 1 : 0,
+          transform: tagVisible ? 'none' : 'translateY(6px)',
+          transition: 'opacity 0.7s ease, transform 0.7s ease',
+        }}
+      >
+        Livré à temps, reçu avec le sourire
+      </div>
 
-        {/* Motorcycle Courier Moving */}
-        <div
-          className="w-full relative h-20 -mt-16 pointer-events-none"
-          style={{ overflow: 'visible' }}
+      {/* Motard (roues ancrées sur la route) */}
+      <div
+        ref={riderRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: 0,
+          bottom: 'calc(48% - 1px)',
+          width: 'clamp(72px, 20vw, 120px)',
+          willChange: 'transform',
+          transform: 'translateX(-200px)',
+        }}
+      >
+        <svg
+          viewBox="0 0 96 64"
+          fill="none"
+          style={{ display: 'block', width: '100%', height: 'auto', overflow: 'visible' }}
         >
-          <div
-            className="absolute top-0 transition-transform duration-75"
-            style={{
-              left: `calc(${progress * 110}% - 80px)`,
-            }}
-          >
-            <svg
-              className="w-24 h-16 overflow-visible drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-              viewBox="0 0 96 64"
-              fill="none"
-              aria-hidden="true"
-            >
-              {/* Speed lines behind */}
-              <path
-                d="M-40 32h34 M-26 42h20 M-34 22h26"
-                stroke="#46C630"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                opacity="0.9"
-              />
-              {/* Delivery Box */}
-              <rect x="6" y="22" width="22" height="18" rx="4" fill="#46C630" />
-              {/* Bike Body */}
-              <path d="M22 44L58 44L62 38L48 34L30 36Z" fill="#fff" />
-              <path
-                d="M40 34L52 38L54 46"
-                stroke="#fff"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Courier Torso */}
-              <path d="M36 34L44 14L52 16L48 34Z" fill="#fff" />
-              {/* Arms */}
-              <path d="M50 18L64 26" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
-              {/* Helmet */}
-              <circle cx="48" cy="8" r="6.5" fill="#fff" />
-              {/* Fork */}
-              <path
-                d="M78 48L68 28L62 30M64 27L72 26"
-                stroke="#fff"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Wheels with spin */}
-              <g className="animate-spin" style={{ transformOrigin: '20px 48px' }}>
-                <circle cx="20" cy="48" r="10" stroke="#fff" strokeWidth="3" />
-                <circle cx="20" cy="41" r="2" fill="#46C630" />
-              </g>
-              <g className="animate-spin" style={{ transformOrigin: '78px 48px' }}>
-                <circle cx="78" cy="48" r="10" stroke="#fff" strokeWidth="3" />
-                <circle cx="78" cy="41" r="2" fill="#46C630" />
-              </g>
-            </svg>
-          </div>
-        </div>
-
-        {/* Brand Name with wipe reveal */}
-        <div className="text-center my-6 relative overflow-hidden">
-          <h1
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-sora italic"
-            style={{
-              clipPath: `inset(0 ${cutPercent}% 0 0)`,
-              transition: 'clip-path 0.05s linear',
-            }}
-          >
-            TGV <span className="text-accent">Livraison</span>
-          </h1>
-
-          <p
-            className={`mt-4 text-base sm:text-xl text-emerald-100/90 font-medium tracking-wide transition-all duration-700 ${
-              showTag ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-            }`}
-          >
-            Livré à temps, reçu avec le sourire
-          </p>
-        </div>
-
-        {/* Skip / Enter Action */}
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <button
-            onClick={() => onComplete()}
-            className="group flex items-center gap-3 px-6 py-3 rounded-full bg-accent text-heading font-bold text-sm tracking-wide shadow-[0_8px_20px_rgba(70,198,48,0.35)] hover:bg-accent-bright transition-all transform hover:scale-105 active:scale-95"
-          >
-            <Zap className="w-4 h-4 fill-current" />
-            <span>Commander une course</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-          <span className="text-xs text-white/50">Livraison en 4 étapes · Aucun compte requis</span>
-        </div>
+          <path
+            d="M-46 32h40M-32 42h26M-40 22h32"
+            stroke="#46C630"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            opacity="0.9"
+          />
+          <rect x="6" y="22" width="22" height="18" rx="3" fill="#46C630" />
+          <path d="M22 44L58 44L62 38L48 34L30 36Z" fill="#fff" />
+          <path
+            d="M40 34L52 38L54 46"
+            stroke="#fff"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path d="M36 34L44 14L52 16L48 34Z" fill="#fff" />
+          <path d="M50 18L64 26" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="48" cy="8" r="6.5" fill="#fff" />
+          <path
+            d="M78 48L68 28L62 30M64 27L72 26"
+            stroke="#fff"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <g className="splash-wheel">
+            <circle cx="20" cy="48" r="10" stroke="#fff" strokeWidth="3" />
+            <circle cx="20" cy="41" r="1.8" fill="#46C630" />
+          </g>
+          <g className="splash-wheel">
+            <circle cx="78" cy="48" r="10" stroke="#fff" strokeWidth="3" />
+            <circle cx="78" cy="41" r="1.8" fill="#46C630" />
+          </g>
+        </svg>
       </div>
     </div>
   );
