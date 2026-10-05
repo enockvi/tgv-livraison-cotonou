@@ -26,25 +26,25 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white dark:bg-[#15201A] p-6 shadow-2xl border border-[#DAD6CC] dark:border-[#223328] flex flex-col gap-5">
+      <div className="w-full max-w-sm rounded-2xl bg-card dark:bg-[#15201a] p-6 shadow-2xl border border-line dark:border-[#223328] flex flex-col gap-5">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-[#E3F1E9] dark:bg-[#123020] text-[#0B7A4B] dark:text-[#46C630] flex items-center justify-center shadow-xs">
+            <div className="w-11 h-11 rounded-xl bg-brand-soft dark:bg-[#123020] text-brand dark:text-[#46c630] flex items-center justify-center shadow-xs">
               <Smartphone className="w-6 h-6" />
             </div>
             <div>
-              <h3 id="pwa-modal-title" className="font-sora font-bold text-lg text-[#0E1512] dark:text-[#F6F4EF] leading-tight">
+              <h3 id="pwa-modal-title" className="font-sora font-bold text-lg text-ink dark:text-[#f6f4ef] leading-tight">
                 Installer l'application
               </h3>
-              <p className="text-xs text-[#4B5751] dark:text-[#8E9F97] font-medium mt-0.5">
+              <p className="text-xs text-muted dark:text-[#8e9f97] font-medium mt-0.5">
                 Accès direct & commandes instantanées
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#4B5751] hover:text-[#0E1512] hover:bg-[#E3F1E9] dark:text-[#8E9F97] dark:hover:text-[#F6F4EF] dark:hover:bg-[#123020] transition"
+            className="p-1.5 rounded-lg text-muted hover:text-ink hover:bg-brand-soft dark:text-[#8e9f97] dark:hover:text-[#f6f4ef] dark:hover:bg-[#123020] transition"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -54,7 +54,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
         {/* Content based on prompt capability */}
         {canPrompt ? (
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-[#4B5751] dark:text-[#8E9F97] leading-relaxed">
+            <p className="text-sm text-muted dark:text-[#8e9f97] leading-relaxed">
               Ajoutez TGV Livraison directement sur votre écran d'accueil pour profiter d'une expérience plein écran rapide, sans passer par la barre d'adresse.
             </p>
             <div className="flex flex-col gap-2">
@@ -64,7 +64,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
                   if (onInstall) onInstall();
                   onClose();
                 }}
-                className="btn-ripple w-full py-3.5 px-4 rounded-xl bg-[#0B7A4B] hover:bg-[#07401F] text-white font-sora font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                className="btn-ripple w-full py-3.5 px-4 rounded-xl bg-brand-solid hover:bg-brand-deep text-white font-sora font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Installer maintenant</span>
@@ -72,7 +72,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-[#4B5751] dark:text-[#8E9F97] hover:bg-[#F6F4EF] dark:hover:bg-[#1A2821] transition"
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-muted dark:text-[#8e9f97] hover:bg-surface dark:hover:bg-[#1a2821] transition"
               >
                 Plus tard
               </button>
@@ -80,33 +80,33 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <p className="text-xs text-[#4B5751] dark:text-[#8E9F97]">
+            <p className="text-xs text-muted dark:text-[#8e9f97]">
               Suivez ces 3 étapes simples pour ajouter l'icône sur votre écran d'accueil :
             </p>
 
-            <ol className="space-y-3 text-sm text-[#0E1512] dark:text-[#F6F4EF]">
+            <ol className="space-y-3 text-sm text-ink dark:text-[#f6f4ef]">
               <li className="flex items-start gap-2.5">
-                <span className="flex-none w-5 h-5 rounded-full bg-[#E3F1E9] dark:bg-[#123020] text-[#0B7A4B] dark:text-[#46C630] font-bold text-xs flex items-center justify-center mt-0.5">
+                <span className="flex-none w-5 h-5 rounded-full bg-brand-soft dark:bg-[#123020] text-brand dark:text-[#46c630] font-bold text-xs flex items-center justify-center mt-0.5">
                   1
                 </span>
                 <span className="leading-snug">
                   Appuyez sur le bouton <strong>Partager</strong>{' '}
-                  <Share2 className="inline w-3.5 h-3.5 text-[#0B7A4B] dark:text-[#46C630] mx-0.5" /> dans le menu de votre navigateur.
+                  <Share2 className="inline w-3.5 h-3.5 text-brand dark:text-[#46c630] mx-0.5" /> dans le menu de votre navigateur.
                 </span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex-none w-5 h-5 rounded-full bg-[#E3F1E9] dark:bg-[#123020] text-[#0B7A4B] dark:text-[#46C630] font-bold text-xs flex items-center justify-center mt-0.5">
+                <span className="flex-none w-5 h-5 rounded-full bg-brand-soft dark:bg-[#123020] text-brand dark:text-[#46c630] font-bold text-xs flex items-center justify-center mt-0.5">
                   2
                 </span>
                 <span className="leading-snug">
                   Faites défiler vers le bas et appuyez sur <strong>« Sur l'écran d'accueil »</strong>{' '}
-                  <PlusSquare className="inline w-3.5 h-3.5 text-[#0B7A4B] dark:text-[#46C630] mx-0.5" />.
+                  <PlusSquare className="inline w-3.5 h-3.5 text-brand dark:text-[#46c630] mx-0.5" />.
                 </span>
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex-none w-5 h-5 rounded-full bg-[#E3F1E9] dark:bg-[#123020] text-[#0B7A4B] dark:text-[#46C630] font-bold text-xs flex items-center justify-center mt-0.5">
+                <span className="flex-none w-5 h-5 rounded-full bg-brand-soft dark:bg-[#123020] text-brand dark:text-[#46c630] font-bold text-xs flex items-center justify-center mt-0.5">
                   3
                 </span>
                 <span className="leading-snug">
@@ -118,7 +118,7 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-ripple w-full mt-2 py-3 px-4 rounded-xl bg-[#0B7A4B] hover:bg-[#07401F] text-white font-sora font-bold text-sm shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="btn-ripple w-full mt-2 py-3 px-4 rounded-xl bg-brand-solid hover:bg-brand-deep text-white font-sora font-bold text-sm shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>J'ai compris</span>

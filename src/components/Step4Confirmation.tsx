@@ -171,14 +171,14 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
     return (
       <div className="space-y-5 animate-in fade-in zoom-in-95 duration-300">
         <div className="text-center pt-2">
-          <div className="w-16 h-16 rounded-full bg-[#E3F1E9] text-[#0B7A4B] mx-auto flex items-center justify-center mb-3 ring-8 ring-[#E3F1E9]/40">
+          <div className="w-16 h-16 rounded-full bg-brand-soft text-brand mx-auto flex items-center justify-center mb-3 ring-8 ring-brand-soft/40">
             <CheckCircle2 className="w-9 h-9 stroke-[2.5]" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-[#0E1512] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-ink tracking-tight">
             Votre message est prêt !
           </h1>
-          <p className="text-sm text-[#4B5751] mt-1.5 max-w-sm mx-auto">
-            Appuyez sur <b className="text-[#0B7A4B]">Envoyer</b> dans WhatsApp pour confirmer immédiatement votre course avec la régulation.
+          <p className="text-sm text-muted mt-1.5 max-w-sm mx-auto">
+            Appuyez sur <b className="text-brand">Envoyer</b> dans WhatsApp pour confirmer immédiatement votre course avec la régulation.
           </p>
         </div>
 
@@ -193,18 +193,18 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         )}
 
         {/* Message preview card */}
-        <div className="p-4 rounded-2xl bg-[#F6F4EF] border-2 border-[#DAD6CC] space-y-3">
-          <div className="flex items-center justify-between text-xs pb-2 border-b border-[#DAD6CC]">
-            <span className="font-bold text-[#4B5751] flex items-center gap-1.5">
-              <MessageCircle className="w-4 h-4 text-[#0B7A4B]" />
+        <div className="p-4 rounded-2xl bg-surface border-2 border-line space-y-3">
+          <div className="flex items-center justify-between text-xs pb-2 border-b border-line">
+            <span className="font-bold text-muted flex items-center gap-1.5">
+              <MessageCircle className="w-4 h-4 text-brand" />
               Message préparé ({orderId})
             </span>
-            <span className="font-bold text-[#07401F] bg-[#E3F1E9] px-2 py-0.5 rounded-full">
+            <span className="font-bold text-heading bg-brand-soft px-2 py-0.5 rounded-full">
               {tarifAffiche}
             </span>
           </div>
 
-          <pre className="text-[11px] leading-relaxed font-sans whitespace-pre-wrap text-[#0E1512] max-h-36 overflow-y-auto p-2.5 bg-white rounded-xl border border-[#DAD6CC]/60">
+          <pre className="text-[11px] leading-relaxed font-sans whitespace-pre-wrap text-ink max-h-36 overflow-y-auto p-2.5 bg-card rounded-xl border border-line/60">
             {rawWhatsAppText}
           </pre>
         </div>
@@ -218,9 +218,9 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
               triggerRipple(e);
               window.open(primaryWhatsAppUrl, '_blank', 'noopener,noreferrer');
             }}
-            className="cta btn-ripple w-full h-14 rounded-2xl bg-[#0B7A4B] text-white font-sora font-bold text-base hover:bg-[#07401F] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+            className="cta btn-ripple w-full h-14 rounded-2xl bg-brand-solid text-white font-sora font-bold text-base hover:bg-brand-deep hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
           >
-            <MessageCircle className="w-5 h-5 fill-white text-[#0B7A4B]" />
+            <MessageCircle className="w-5 h-5 fill-white text-brand" />
             <span>Rouvrir WhatsApp</span>
           </button>
 
@@ -231,7 +231,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
               triggerRipple(e);
               copyFullMessage();
             }}
-            className="cta btn-ripple w-full h-12 rounded-2xl bg-white border-2 border-[#DAD6CC] text-[#0E1512] font-semibold text-sm hover:bg-[#F6F4EF] hover:border-[#0B7A4B] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="cta btn-ripple w-full h-12 rounded-2xl bg-card border-2 border-line text-ink font-semibold text-sm hover:bg-surface hover:border-brand hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {copiedMessage ? (
               <>
@@ -240,7 +240,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4 text-[#0B7A4B]" />
+                <Copy className="w-4 h-4 text-brand" />
                 <span>Copier le message complet</span>
               </>
             )}
@@ -253,21 +253,21 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
               triggerRipple(e);
               onResetOrder();
             }}
-            className="cta btn-ripple w-full h-12 rounded-2xl bg-transparent border border-dashed border-[#DAD6CC] text-[#4B5751] hover:text-[#0E1512] hover:bg-[#F6F4EF] hover:-translate-y-0.5 font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="cta btn-ripple w-full h-12 rounded-2xl bg-transparent border border-dashed border-line text-muted hover:text-ink hover:bg-surface hover:-translate-y-0.5 font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <RotateCcw className="w-4 h-4 text-[#4B5751]" />
+            <RotateCcw className="w-4 h-4 text-muted" />
             <span>Nouvelle commande</span>
           </button>
         </div>
 
         {/* Discrete second line fallback per F11 */}
-        <div className="text-center text-xs text-[#4B5751] pt-2">
+        <div className="text-center text-xs text-muted pt-2">
           <span>Un problème sur la ligne principale ? </span>
           <a
             href={secondaryWhatsAppUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#0B7A4B] font-bold underline hover:text-[#07401F]"
+            className="text-brand font-bold underline hover:text-heading"
           >
             Envoyer sur la Ligne 2 ({PHONE_DISPLAY_2})
           </a>
@@ -280,38 +280,38 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-[#0E1512] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-ink tracking-tight">
           Vérifiez et confirmez
         </h1>
-        <p className="text-sm text-[#4B5751] mt-1">
+        <p className="text-sm text-muted mt-1">
           La course sera transmise directement à la régulation TGV sur WhatsApp.
         </p>
       </div>
 
       {/* Recap Card */}
-      <div className="bg-white border-2 border-[#DAD6CC] rounded-3xl p-5 shadow-xs space-y-4">
+      <div className="bg-card border-2 border-line rounded-3xl p-5 shadow-xs space-y-4">
         {/* Order Reference Badge */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#DAD6CC]/70">
+        <div className="flex items-center justify-between pb-3 border-b border-line/70">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#4B5751]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
               Référence Course
             </span>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-sora font-extrabold text-base text-[#07401F]">
+              <span className="font-sora font-extrabold text-base text-heading">
                 {orderId}
               </span>
               <button
                 type="button"
                 onClick={copyRef}
-                className="p-1 rounded-md text-[#4B5751] hover:text-[#0B7A4B] hover:bg-[#E3F1E9] transition cursor-pointer"
+                className="p-1 rounded-md text-muted hover:text-brand hover:bg-brand-soft transition cursor-pointer"
                 title="Copier la référence"
               >
                 {copiedRef ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
           </div>
-          <span className="text-xs font-bold text-[#0B7A4B] bg-[#E3F1E9] px-2.5 py-1 rounded-full flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#0B7A4B] animate-pulse" />
+          <span className="text-xs font-bold text-brand bg-brand-soft px-2.5 py-1 rounded-full flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-brand-solid animate-pulse" />
             Prête à expédier
           </span>
         </div>
@@ -319,27 +319,27 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         {/* Detailed Rows */}
         <div className="space-y-2.5 text-xs">
           <div className="flex justify-between py-1 border-b border-gray-100">
-            <span className="text-[#4B5751] font-medium">Service</span>
-            <span className="font-bold text-[#0E1512]">{service.name}</span>
+            <span className="text-muted font-medium">Service</span>
+            <span className="font-bold text-ink">{service.name}</span>
           </div>
 
           <div className="flex justify-between py-1 border-b border-gray-100">
-            <span className="text-[#4B5751] font-medium">Départ (Collecte)</span>
-            <span className="font-bold text-[#0E1512] text-right">
-              {dep.name} <span className="text-[#0B7A4B]">({COMMUNE_NAMES[dep.commune]})</span>
+            <span className="text-muted font-medium">Départ (Collecte)</span>
+            <span className="font-bold text-ink text-right">
+              {dep.name} <span className="text-brand">({COMMUNE_NAMES[dep.commune]})</span>
             </span>
           </div>
 
           <div className="flex justify-between py-1 border-b border-gray-100">
-            <span className="text-[#4B5751] font-medium">Arrivée (Dépôt)</span>
-            <span className="font-bold text-[#0E1512] text-right">
-              {dst.name} <span className="text-[#0B7A4B]">({COMMUNE_NAMES[dst.commune]})</span>
+            <span className="text-muted font-medium">Arrivée (Dépôt)</span>
+            <span className="font-bold text-ink text-right">
+              {dst.name} <span className="text-brand">({COMMUNE_NAMES[dst.commune]})</span>
             </span>
           </div>
 
           <div className="flex justify-between py-1 border-b border-gray-100">
-            <span className="text-[#4B5751] font-medium">Distance estimée</span>
-            <span className="font-bold text-[#0B7A4B] text-right">
+            <span className="text-muted font-medium">Distance estimée</span>
+            <span className="font-bold text-brand text-right">
               ~{formatDistance(distance)}
             </span>
           </div>
@@ -358,14 +358,14 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
           {/* Contact Destinataire (F6) */}
           {(recipientName || recipientPhone) && (
             <div className="flex justify-between py-1 border-b border-gray-100">
-              <span className="text-[#4B5751] font-medium flex items-center gap-1">
-                <User className="w-3.5 h-3.5 text-[#0B7A4B]" />
+              <span className="text-muted font-medium flex items-center gap-1">
+                <User className="w-3.5 h-3.5 text-brand" />
                 Destinataire
               </span>
-              <span className="font-bold text-[#0E1512] text-right">
+              <span className="font-bold text-ink text-right">
                 {recipientName || 'Client'}
                 {recipientPhone && (
-                  <span className="block text-xs font-semibold text-[#0B7A4B]">
+                  <span className="block text-xs font-semibold text-brand">
                     +229 {recipientPhone}
                   </span>
                 )}
@@ -374,10 +374,10 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
           )}
 
           <div className="flex justify-between py-1 border-b border-gray-100">
-            <span className="text-[#4B5751] font-medium">Priorité</span>
+            <span className="text-muted font-medium">Priorité</span>
             <span
               className={`font-bold ${
-                urgent ? 'text-amber-700' : 'text-[#0B7A4B]'
+                urgent ? 'text-amber-700' : 'text-brand'
               }`}
             >
               {urgent ? '⚡ Urgent Express' : '🟢 Standard'}
@@ -386,19 +386,19 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
 
           {note && (
             <div className="py-1 border-b border-gray-100">
-              <span className="text-[#4B5751] font-medium block mb-0.5">Repères & Notes :</span>
-              <p className="text-[#0E1512] italic bg-[#F6F4EF] p-2 rounded-xl">« {note} »</p>
+              <span className="text-muted font-medium block mb-0.5">Repères & Notes :</span>
+              <p className="text-ink italic bg-surface p-2 rounded-xl">« {note} »</p>
             </div>
           )}
 
           {gps && (
             <div className="flex justify-between py-1 border-b border-gray-100 items-center">
-              <span className="text-[#4B5751] font-medium">Position GPS</span>
+              <span className="text-muted font-medium">Position GPS</span>
               <a
                 href={`https://maps.google.com/?q=${gps}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#0B7A4B] font-bold flex items-center gap-1 hover:underline"
+                className="text-brand font-bold flex items-center gap-1 hover:underline"
               >
                 <span>Voir sur Google Maps</span>
                 <ExternalLink className="w-3 h-3" />
@@ -410,12 +410,12 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
         {/* Total Price Row */}
         <div className="pt-2 flex justify-between items-center">
           <div>
-            <span className="text-xs text-[#4B5751] block font-medium">Tarif officiel</span>
-            <span className="text-[11px] text-[#0B7A4B] font-semibold">
+            <span className="text-xs text-muted block font-medium">Tarif officiel</span>
+            <span className="text-[11px] text-brand font-semibold">
               Paiement direct au coursier
             </span>
           </div>
-          <span className="font-sora font-extrabold text-2xl text-[#07401F]">
+          <span className="font-sora font-extrabold text-2xl text-heading">
             {tarifAffiche}
           </span>
         </div>
@@ -423,7 +423,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
 
       {/* Payment Options (Règlement au livreur) */}
       <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-wider text-[#4B5751]">
+        <label className="block text-xs font-bold uppercase tracking-wider text-muted">
           Règlement au coursier (à la livraison)
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -432,26 +432,26 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
             onClick={() => setPaymentMode('cod')}
             className={`p-3.5 rounded-2xl border-2 flex items-center justify-between transition-all cursor-pointer ${
               paymentMode === 'cod'
-                ? 'border-[#0B7A4B] bg-[#E3F1E9]/40 ring-2 ring-[#0B7A4B]/20'
-                : 'border-[#DAD6CC] bg-white hover:border-[#0B7A4B]/40'
+                ? 'border-brand bg-brand-soft/40 ring-2 ring-brand/20'
+                : 'border-line bg-card hover:border-brand/40'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-soft text-brand flex items-center justify-center">
                 <Banknote className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <div className="font-bold text-xs text-[#0E1512]">Payer en espèces</div>
-                <div className="text-[11px] text-[#4B5751]">Remise directe en mains propres</div>
+                <div className="font-bold text-xs text-ink">Payer en espèces</div>
+                <div className="text-[11px] text-muted">Remise directe en mains propres</div>
               </div>
             </div>
             <div
               className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                paymentMode === 'cod' ? 'border-[#0B7A4B]' : 'border-[#DAD6CC]'
+                paymentMode === 'cod' ? 'border-brand' : 'border-line'
               }`}
             >
               {paymentMode === 'cod' && (
-                <div className="w-2 h-2 rounded-full bg-[#0B7A4B]" />
+                <div className="w-2 h-2 rounded-full bg-brand-solid" />
               )}
             </div>
           </button>
@@ -461,26 +461,26 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
             onClick={() => setPaymentMode('momo')}
             className={`p-3.5 rounded-2xl border-2 flex items-center justify-between transition-all cursor-pointer ${
               paymentMode === 'momo'
-                ? 'border-[#0B7A4B] bg-[#E3F1E9]/40 ring-2 ring-[#0B7A4B]/20'
-                : 'border-[#DAD6CC] bg-white hover:border-[#0B7A4B]/40'
+                ? 'border-brand bg-brand-soft/40 ring-2 ring-brand/20'
+                : 'border-line bg-card hover:border-brand/40'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-brand-soft text-brand flex items-center justify-center">
                 <Smartphone className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <div className="font-bold text-xs text-[#0E1512]">Mobile Money</div>
-                <div className="text-[11px] text-[#4B5751]">MTN MoMo ou Moov Money</div>
+                <div className="font-bold text-xs text-ink">Mobile Money</div>
+                <div className="text-[11px] text-muted">MTN MoMo ou Moov Money</div>
               </div>
             </div>
             <div
               className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                paymentMode === 'momo' ? 'border-[#0B7A4B]' : 'border-[#DAD6CC]'
+                paymentMode === 'momo' ? 'border-brand' : 'border-line'
               }`}
             >
               {paymentMode === 'momo' && (
-                <div className="w-2 h-2 rounded-full bg-[#0B7A4B]" />
+                <div className="w-2 h-2 rounded-full bg-brand-solid" />
               )}
             </div>
           </button>
@@ -496,7 +496,7 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
             triggerRipple(e);
             handleConfirmOrder(primaryWhatsAppUrl);
           }}
-          className="cta btn-ripple w-full h-15 rounded-2xl bg-[#0B7A4B] text-white font-sora font-extrabold text-base hover:bg-[#07401F] hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2.5 cursor-pointer"
+          className="cta btn-ripple w-full h-15 rounded-2xl bg-brand-solid text-white font-sora font-extrabold text-base hover:bg-brand-deep hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2.5 cursor-pointer"
         >
           {isSending ? (
             <>
@@ -505,24 +505,24 @@ export const Step4Confirmation: React.FC<Step4ConfirmationProps> = ({
             </>
           ) : (
             <>
-              <MessageCircle className="w-5 h-5 fill-white text-[#0B7A4B]" />
+              <MessageCircle className="w-5 h-5 fill-white text-brand" />
               <span>{tarifDisponible ? `Envoyer sur WhatsApp · ${tarifAffiche}` : 'Envoyer sur WhatsApp'}</span>
             </>
           )}
         </button>
 
-        <div className="flex items-center justify-center text-xs text-[#4B5751] px-1">
+        <div className="flex items-center justify-center text-xs text-muted px-1">
           <a
             href={`tel:${PHONE_DISPLAY_1.replace(/\s+/g, '')}`}
-            className="text-[#4B5751] hover:text-[#07401F] flex items-center gap-1 font-semibold"
+            className="text-muted hover:text-heading flex items-center gap-1 font-semibold"
           >
-            <PhoneCall className="w-3.5 h-3.5 text-[#0B7A4B]" />
+            <PhoneCall className="w-3.5 h-3.5 text-brand" />
             <span>Appel direct ({PHONE_DISPLAY_1})</span>
           </a>
         </div>
       </div>
 
-      <div className="text-center text-[11px] text-[#4B5751] pt-1">
+      <div className="text-center text-[11px] text-muted pt-1">
         🔒 Zéro compte requis · Historique sauvegardé en local dans votre navigateur.
       </div>
     </div>

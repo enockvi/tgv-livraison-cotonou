@@ -217,9 +217,9 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
 
   const champSelectionne = (q: Quartier | null) => (
     <span className="flex items-center gap-2 min-w-0">
-      <span className="font-bold text-[15px] text-[#0E1512] truncate">{q ? q.name : '—'}</span>
+      <span className="font-bold text-[15px] text-ink truncate">{q ? q.name : '—'}</span>
       {q && (
-        <span className="text-[10px] uppercase font-bold text-[#0B7A4B] bg-[#E3F1E9] px-1.5 py-0.5 rounded-md flex-shrink-0">
+        <span className="text-[10px] uppercase font-bold text-brand bg-brand-soft px-1.5 py-0.5 rounded-md flex-shrink-0">
           {COMMUNE_NAMES[q.commune]}
         </span>
       )}
@@ -230,8 +230,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
     if (type === 'dst' && !dep) {
       return (
         <div className="p-4 text-center space-y-1">
-          <p className="text-xs font-bold text-[#0E1512]">Choisissez d’abord le point de départ</p>
-          <p className="text-[11px] text-[#4B5751]">
+          <p className="text-xs font-bold text-ink">Choisissez d’abord le point de départ</p>
+          <p className="text-[11px] text-muted">
             Les destinations proposées dépendent du quartier de prise en charge.
           </p>
         </div>
@@ -241,23 +241,23 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
     return (
       <>
         {/* Recherche + filtres communes */}
-        <div className="p-3 border-b border-[#DAD6CC]/60 space-y-2 bg-white">
+        <div className="p-3 border-b border-line/60 space-y-2 bg-card">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#4B5751] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               ref={inputRef}
               type="text"
               value={recherche}
               onChange={(e) => setRecherche(e.target.value)}
               placeholder={type === 'dep' ? 'Rechercher un quartier de départ…' : 'Rechercher une destination…'}
-              className="w-full h-11 pl-9 pr-9 rounded-xl border-2 border-[#DAD6CC] bg-[#F6F4EF] text-sm font-semibold text-[#0E1512] placeholder:text-[#4B5751]/50 focus:border-[#0B7A4B] focus:bg-white focus:outline-none transition-all"
+              className="w-full h-11 pl-9 pr-9 rounded-xl border-2 border-line bg-surface text-sm font-semibold text-ink placeholder:text-muted/50 focus:border-brand focus:bg-card focus:outline-none transition-all"
             />
             {recherche && (
               <button
                 type="button"
                 onClick={() => setRecherche('')}
                 aria-label="Effacer la recherche"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-[#4B5751] hover:bg-[#E3F1E9]"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-muted hover:bg-brand-soft"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -270,8 +270,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
               onClick={() => setFiltre('toutes')}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition ${
                 filtre === 'toutes'
-                  ? 'bg-[#0B7A4B] text-white'
-                  : 'bg-[#F6F4EF] text-[#4B5751] border border-[#DAD6CC] hover:border-[#0B7A4B]/40'
+                  ? 'bg-brand-solid text-white'
+                  : 'bg-surface text-muted border border-line hover:border-brand/40'
               }`}
             >
               Toutes ({type === 'dep' ? ALL_QUARTIERS.length : destinations.length})
@@ -289,8 +289,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
                   onClick={() => setFiltre(c.key)}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition ${
                     filtre === c.key
-                      ? 'bg-[#0B7A4B] text-white'
-                      : 'bg-[#F6F4EF] text-[#4B5751] border border-[#DAD6CC] hover:border-[#0B7A4B]/40'
+                      ? 'bg-brand-solid text-white'
+                      : 'bg-surface text-muted border border-line hover:border-brand/40'
                   }`}
                 >
                   {c.label} ({total})
@@ -301,11 +301,11 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
         </div>
 
         {/* Résultats */}
-        <div className="max-h-72 overflow-y-auto divide-y divide-[#DAD6CC]/40">
+        <div className="max-h-72 overflow-y-auto divide-y divide-line/40">
           {nombreResultats === 0 ? (
             <div className="p-4 text-center space-y-1">
-              <p className="text-xs font-bold text-[#0E1512]">Aucun résultat pour « {recherche} »</p>
-              <p className="text-[11px] text-[#4B5751]">
+              <p className="text-xs font-bold text-ink">Aucun résultat pour « {recherche} »</p>
+              <p className="text-[11px] text-muted">
                 Seuls les quartiers desservis par TGV Livraison sont proposés. Choisissez le quartier
                 le plus proche, puis précisez le repère exact à l’étape suivante.
               </p>
@@ -313,7 +313,7 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
           ) : (
             groupes.map(([commune, liste], indexGroupe) => (
               <div key={commune}>
-                <div className="px-4 py-1.5 bg-[#F6F4EF] text-[10px] font-bold uppercase tracking-wider text-[#4B5751] sticky top-0 z-10">
+                <div className="px-4 py-1.5 bg-surface text-[10px] font-bold uppercase tracking-wider text-muted sticky top-0 z-10">
                   {COMMUNE_NAMES[commune]} · {liste.length}
                 </div>
                 {liste.map((q, indexItem) => {
@@ -328,13 +328,13 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
                       aria-selected={selectionne}
                       role="option"
                       className={`w-full px-4 py-2.5 flex items-center justify-between gap-2 text-left transition ${
-                        selectionne ? 'bg-[#E3F1E9]' : 'hover:bg-[#F6F4EF]'
+                        selectionne ? 'bg-brand-soft' : 'hover:bg-surface'
                       }`}
                     >
                       <span className="flex items-center gap-2 min-w-0">
-                        <span className="text-[13px] font-semibold text-[#0E1512] truncate">{q.name}</span>
+                        <span className="text-[13px] font-semibold text-ink truncate">{q.name}</span>
                         {plusProche && (
-                          <span className="text-[9px] font-bold uppercase text-[#07401F] bg-[#46C630] px-1.5 py-0.5 rounded-md flex-shrink-0">
+                          <span className="text-[9px] font-bold uppercase text-heading bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
                             Le plus proche
                           </span>
                         )}
@@ -343,18 +343,18 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
                       <span className="flex items-center gap-2 flex-shrink-0">
                         {info && (
                           <span className="text-right leading-tight">
-                            <span className="block text-[10px] text-[#4B5751]">
+                            <span className="block text-[10px] text-muted">
                               ~{formatDistance(info.distance)}
                             </span>
-                            <span className="block text-[11px] font-extrabold text-[#07401F]">
+                            <span className="block text-[11px] font-extrabold text-heading">
                               {formatFCFA(info.tarif)}
                             </span>
                           </span>
                         )}
                         {selectionne ? (
-                          <CheckCircle className="w-4 h-4 text-[#0B7A4B]" />
+                          <CheckCircle className="w-4 h-4 text-brand" />
                         ) : (
-                          <ChevronRight className="w-4 h-4 text-[#4B5751]/50" />
+                          <ChevronRight className="w-4 h-4 text-muted/50" />
                         )}
                       </span>
                     </button>
@@ -371,10 +371,10 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
   return (
     <div ref={carteRef} className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-[#0E1512] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-ink tracking-tight">
           Où livrer ?
         </h1>
-        <p className="text-sm text-[#4B5751] mt-1">
+        <p className="text-sm text-muted mt-1">
           Choisissez le quartier de prise en charge, puis la destination parmi celles réellement
           desservies par TGV Livraison.
         </p>
@@ -383,8 +383,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
       {/* Trajets récents : un seul tap pour tout remplir */}
       {recents.length > 0 && (
         <div>
-          <span className="text-xs font-semibold text-[#4B5751] mb-2 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-[#0B7A4B]" />
+          <span className="text-xs font-semibold text-muted mb-2 flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-brand" />
             Vos derniers trajets
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -393,10 +393,10 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
                 key={index}
                 type="button"
                 onClick={() => choisirTrajetRecent(trajet)}
-                className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl bg-white border border-[#DAD6CC] text-[#0E1512] hover:border-[#0B7A4B] hover:bg-[#E3F1E9] transition"
+                className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-xl bg-card border border-line text-ink hover:border-brand hover:bg-brand-soft transition"
               >
                 <span className="truncate max-w-[100px]">{trajet.dep.name}</span>
-                <ChevronRight className="w-3 h-3 text-[#0B7A4B] flex-shrink-0" />
+                <ChevronRight className="w-3 h-3 text-brand flex-shrink-0" />
                 <span className="truncate max-w-[100px]">{trajet.dst.name}</span>
               </button>
             ))}
@@ -405,31 +405,31 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
       )}
 
       {/* Sélection Départ / Destination */}
-      <div className="bg-white border-2 border-[#DAD6CC] rounded-3xl shadow-xs overflow-hidden">
+      <div className="bg-card border-2 border-line rounded-3xl shadow-xs overflow-hidden">
         {/* Départ */}
         <button
           type="button"
           onClick={() => setPanneau(panneau === 'dep' ? null : 'dep')}
-          className="w-full px-4 py-3.5 flex items-center gap-3 text-left border-b border-[#DAD6CC]/60 hover:bg-[#F6F4EF] transition"
+          className="w-full px-4 py-3.5 flex items-center gap-3 text-left border-b border-line/60 hover:bg-surface transition"
           aria-expanded={panneau === 'dep'}
         >
-          <span className="w-8 h-8 rounded-full bg-[#0B7A4B] text-white flex items-center justify-center flex-shrink-0">
+          <span className="w-8 h-8 rounded-full bg-brand-solid text-white flex items-center justify-center flex-shrink-0">
             <MapPin className="w-4 h-4" />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#4B5751]">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-muted">
               1 · Départ (prise en charge)
             </span>
             {dep ? (
               champSelectionne(dep)
             ) : (
-              <span className="block text-sm font-semibold text-[#4B5751]/70">
+              <span className="block text-sm font-semibold text-muted/70">
                 Choisir le quartier de départ
               </span>
             )}
           </span>
           <ChevronRight
-            className={`w-4 h-4 text-[#4B5751] transition-transform flex-shrink-0 ${
+            className={`w-4 h-4 text-muted transition-transform flex-shrink-0 ${
               panneau === 'dep' ? 'rotate-90' : ''
             }`}
           />
@@ -441,35 +441,35 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
         <button
           type="button"
           onClick={() => setPanneau(panneau === 'dst' ? null : 'dst')}
-          className="w-full px-4 py-3.5 flex items-center gap-3 text-left hover:bg-[#F6F4EF] transition disabled:cursor-not-allowed disabled:hover:bg-white"
+          className="w-full px-4 py-3.5 flex items-center gap-3 text-left hover:bg-surface transition disabled:cursor-not-allowed disabled:hover:bg-card"
           aria-expanded={panneau === 'dst'}
           disabled={!dep}
         >
           <span
             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-              dep ? 'bg-[#46C630] text-[#07401F]' : 'bg-[#DAD6CC] text-[#4B5751]'
+              dep ? 'bg-accent text-heading' : 'bg-line text-muted'
             }`}
           >
             <Route className="w-4 h-4" />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-[#4B5751]">
+            <span className="block text-[10px] font-bold uppercase tracking-wider text-muted">
               2 · Destination (livraison)
             </span>
             {dst ? (
               champSelectionne(dst)
             ) : (
-              <span className="block text-sm font-semibold text-[#4B5751]/70">
+              <span className="block text-sm font-semibold text-muted/70">
                 {dep ? 'Choisir la destination' : 'En attente du départ'}
               </span>
             )}
           </span>
           {dep ? (
-            <span className="text-[10px] font-bold text-[#0B7A4B] bg-[#E3F1E9] px-2 py-0.5 rounded-full flex-shrink-0">
+            <span className="text-[10px] font-bold text-brand bg-brand-soft px-2 py-0.5 rounded-full flex-shrink-0">
               {destinations.length} desservies
             </span>
           ) : (
-            <ChevronRight className="w-4 h-4 text-[#4B5751]/40 flex-shrink-0" />
+            <ChevronRight className="w-4 h-4 text-muted/40 flex-shrink-0" />
           )}
         </button>
 
@@ -477,8 +477,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
 
         {/* Inverser */}
         {(dep || dst) && (
-          <div className="px-4 py-2.5 bg-[#F6F4EF] border-t border-[#DAD6CC]/60 flex items-center justify-between">
-            <span className="text-[11px] text-[#4B5751]">
+          <div className="px-4 py-2.5 bg-surface border-t border-line/60 flex items-center justify-between">
+            <span className="text-[11px] text-muted">
               {dep && dst
                 ? 'Trajet symétrique : le retour suit le même tarif.'
                 : 'Les deux sens d’une liaison partagent le même tarif.'}
@@ -487,7 +487,7 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
               type="button"
               onClick={handleSwap}
               disabled={!dep || !dst}
-              className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-[#DAD6CC] bg-white text-[#0B7A4B] hover:border-[#0B7A4B] transition disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-line bg-card text-brand hover:border-brand transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
               Inverser
@@ -500,19 +500,19 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
       {dep && dst && (
         <div
           className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${
-            tarifDisponible ? 'bg-[#E3F1E9] border-[#0B7A4B]/20' : 'bg-amber-50 border-amber-200'
+            tarifDisponible ? 'bg-brand-soft border-brand/20' : 'bg-amber-50 border-amber-200'
           }`}
         >
           <div className="min-w-0">
-            <div className="text-xs font-bold text-[#0B7A4B] uppercase tracking-wider truncate">
+            <div className="text-xs font-bold text-brand uppercase tracking-wider truncate">
               {dep.name} → {dst.name}
             </div>
             {tarifDisponible && routeDetails ? (
-              <div className="text-xs text-[#4B5751] mt-0.5">
+              <div className="text-xs text-muted mt-0.5">
                 Distance officielle :{' '}
-                <b className="text-[#0E1512]">{formatDistance(routeDetails.distance)}</b>
+                <b className="text-ink">{formatDistance(routeDetails.distance)}</b>
                 {routeDetails.source === 'live' && (
-                  <span className="ml-1.5 text-[10px] font-bold text-[#07401F] bg-[#46C630]/30 px-1.5 py-0.5 rounded-md">
+                  <span className="ml-1.5 text-[10px] font-bold text-heading bg-accent/30 px-1.5 py-0.5 rounded-md">
                     à jour
                   </span>
                 )}
@@ -525,8 +525,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <span className="text-xs text-[#4B5751] block">Tarif officiel</span>
-            <span className="font-sora font-extrabold text-xl text-[#07401F]">
+            <span className="text-xs text-muted block">Tarif officiel</span>
+            <span className="font-sora font-extrabold text-xl text-heading">
               {tarifDisponible && routeDetails ? formatFCFA(routeDetails.tarif) : 'À confirmer'}
             </span>
           </div>
@@ -534,14 +534,14 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
       )}
 
       {/* GPS */}
-      <div className="p-4 rounded-2xl bg-white border border-[#DAD6CC] space-y-2">
+      <div className="p-4 rounded-2xl bg-card border border-line space-y-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <button
             type="button"
             onClick={handleGetGPS}
             disabled={gpsLoading}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer ${
-              gps ? 'bg-[#E3F1E9] text-[#0B7A4B] border border-[#0B7A4B]/30' : 'bg-[#0B7A4B] text-white hover:bg-[#07401F]'
+              gps ? 'bg-brand-soft text-brand border border-brand/30' : 'bg-brand-solid text-white hover:bg-brand-deep'
             }`}
           >
             <Navigation className={`w-4 h-4 ${gpsLoading ? 'animate-spin' : ''}`} />
@@ -562,7 +562,7 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
         {gpsMsg && (
           <p
             className={`text-xs flex items-center gap-1.5 ${
-              gpsMsg.error ? 'text-amber-700' : 'text-[#0B7A4B]'
+              gpsMsg.error ? 'text-amber-700' : 'text-brand'
             }`}
           >
             {gpsMsg.error ? (
@@ -575,7 +575,7 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
         )}
       </div>
 
-      <p className="text-[11px] text-[#4B5751] text-center">
+      <p className="text-[11px] text-muted text-center">
         {ALL_QUARTIERS.length} quartiers desservis · {NOMBRE_LIAISONS} liaisons officielles (grille TGV)
       </p>
 
@@ -592,8 +592,8 @@ export const Step2Location: React.FC<Step2LocationProps> = ({
           }}
           className={`cta btn-ripple w-full h-14 rounded-2xl font-sora font-bold text-base transition-all flex items-center justify-center gap-2 ${
             isComplete
-              ? 'bg-[#0B7A4B] text-white shadow-md hover:bg-[#07401F] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer'
-              : 'bg-[#DAD6CC] text-[#4B5751] cursor-not-allowed opacity-80'
+              ? 'bg-brand-solid text-white shadow-md hover:bg-brand-deep hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer'
+              : 'bg-line text-muted cursor-not-allowed opacity-80'
           }`}
         >
           <span>

@@ -2,14 +2,72 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ------------------------------------------------------------------
+   Jetons de thème (design tokens)
+   ------------------------------------------------------------------
+   Les valeurs « clair » correspondent EXACTEMENT à la palette d'origine
+   de l'application : le mode clair reste donc identique au pixel près.
+   Le mode sombre ne fait que redéfinir les variables — aucune classe
+   `dark:` n'est nécessaire dans les composants.
+   ------------------------------------------------------------------ */
+@theme inline {
+  --color-page: var(--c-page);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-card: var(--c-card);
+  --color-ink: var(--c-ink);
+  --color-heading: var(--c-heading);
+  --color-muted: var(--c-muted);
+  --color-muted-2: var(--c-muted-2);
+  --color-line: var(--c-line);
+  --color-brand: var(--c-brand);
+  --color-brand-solid: var(--c-brand-solid);
+  --color-brand-deep: var(--c-brand-deep);
+  --color-brand-soft: var(--c-brand-soft);
+  --color-accent: var(--c-accent);
+  --color-accent-bright: var(--c-accent-bright);
+}
+
 :root {
-  --background: #F6F4EF;
-  --foreground: #0E1512;
+  color-scheme: light;
+  --c-page: #EDEAE2;
+  --c-surface: #F6F4EF;
+  --c-surface-2: #F7F6F2;
+  --c-card: #FFFFFF;
+  --c-ink: #0E1512;
+  --c-heading: #07401F;
+  --c-muted: #4B5751;
+  --c-muted-2: #8E9F97;
+  --c-line: #DAD6CC;
+  --c-brand: #0B7A4B;
+  --c-brand-solid: #0B7A4B;
+  --c-brand-deep: #07401F;
+  --c-brand-soft: #E3F1E9;
+  --c-accent: #46C630;
+  --c-accent-bright: #58D443;
+  --background: var(--c-surface);
+  --foreground: var(--c-ink);
 }
 
 .dark {
-  --background: #0E1512;
-  --foreground: #F6F4EF;
+  color-scheme: dark;
+  --c-page: #080D0A;
+  --c-surface: #0F1713;
+  --c-surface-2: #131D17;
+  --c-card: #16211B;
+  --c-ink: #F2F5F3;
+  --c-heading: #DCF0E4;
+  --c-muted: #9AAEA4;
+  --c-muted-2: #7E9188;
+  --c-line: #26332C;
+  --c-brand: #5AD79A;
+  --c-brand-solid: #12703F;
+  --c-brand-deep: #0B3D26;
+  --c-brand-soft: #16301F;
+  --c-accent: #46C630;
+  --c-accent-bright: #58D443;
+  --background: var(--c-surface);
+  --foreground: var(--c-ink);
 }
 
 /* Ripple wave & Button micro-interactions */

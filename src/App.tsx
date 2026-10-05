@@ -160,7 +160,7 @@ export default function App() {
   const currentService = SERVICES.find((s) => s.id === selectedService) || SERVICES[0];
 
   return (
-    <div className="min-h-screen bg-[#EDEAE2] flex flex-col font-sans text-[#0E1512]">
+    <div className="min-h-screen bg-page flex flex-col font-sans text-ink">
       {/* Animated Splash Screen */}
       {showSplash && (
         <SplashIntro onComplete={handleSplashComplete} />
@@ -193,46 +193,46 @@ export default function App() {
                 className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
                 title="Cliquer pour rejouer l'animation de démarrage"
               >
-                <div className="w-12 h-12 rounded-2xl bg-[#07401F] flex items-center justify-center text-[#46C630] font-black text-lg tracking-tighter shadow-md group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-brand-deep flex items-center justify-center text-accent font-black text-lg tracking-tighter shadow-md group-hover:scale-105 transition-transform">
                   <span>TGV</span>
                 </div>
                 <div>
-                  <h2 className="font-sora font-extrabold text-2xl tracking-tight text-[#0E1512] leading-none">
-                    TGV <span className="text-[#0B7A4B]">Livraison</span>
+                  <h2 className="font-sora font-extrabold text-2xl tracking-tight text-ink leading-none">
+                    TGV <span className="text-brand">Livraison</span>
                   </h2>
-                  <span className="text-xs text-[#0B7A4B] font-bold tracking-wider uppercase">
+                  <span className="text-xs text-brand font-bold tracking-wider uppercase">
                     Cotonou & Grand Nokoué
                   </span>
                 </div>
               </button>
 
-              <h1 className="font-sora font-black text-4xl leading-[1.1] text-[#07401F] tracking-tight">
+              <h1 className="font-sora font-black text-4xl leading-[1.1] text-heading tracking-tight">
                 Livré à temps, reçu avec le sourire.
               </h1>
 
-              <p className="text-base text-[#4B5751] font-medium leading-relaxed">
+              <p className="text-base text-muted font-medium leading-relaxed">
                 Le service de livraison express le plus fiable de Cotonou. Commandez une course en 4 étapes simples sans inscription compliquée. Nos motards confirment directement avec vous sur WhatsApp.
               </p>
             </div>
 
             {/* Value Propositions */}
-            <ul className="space-y-3 font-semibold text-sm text-[#0E1512]">
-              <li className="flex items-center gap-3 p-3 bg-white/70 rounded-2xl border border-[#DAD6CC]">
-                <div className="w-6 h-6 rounded-full bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center flex-shrink-0">
+            <ul className="space-y-3 font-semibold text-sm text-ink">
+              <li className="flex items-center gap-3 p-3 bg-card/70 rounded-2xl border border-line">
+                <div className="w-6 h-6 rounded-full bg-brand-soft text-brand flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-3.5 h-3.5" />
                 </div>
                 <span>Cotonou, Abomey-Calavi, Sémè-Podji, Porto-Novo</span>
               </li>
 
-              <li className="flex items-center gap-3 p-3 bg-white/70 rounded-2xl border border-[#DAD6CC]">
-                <div className="w-6 h-6 rounded-full bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center flex-shrink-0">
+              <li className="flex items-center gap-3 p-3 bg-card/70 rounded-2xl border border-line">
+                <div className="w-6 h-6 rounded-full bg-brand-soft text-brand flex items-center justify-center flex-shrink-0">
                   <CheckCircle className="w-3.5 h-3.5" />
                 </div>
                 <span>Tarif transparent calculé avant validation (dès 1 000 FCFA)</span>
               </li>
 
-              <li className="flex items-center gap-3 p-3 bg-white/70 rounded-2xl border border-[#DAD6CC]">
-                <div className="w-6 h-6 rounded-full bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center flex-shrink-0">
+              <li className="flex items-center gap-3 p-3 bg-card/70 rounded-2xl border border-line">
+                <div className="w-6 h-6 rounded-full bg-brand-soft text-brand flex items-center justify-center flex-shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <span>Paiement en mains propres à la livraison ou Mobile Money</span>
@@ -241,9 +241,9 @@ export default function App() {
           </div>
 
           {/* Hotline & Workflow action in left sidebar */}
-          <div className="p-5 rounded-3xl bg-[#07401F] text-white space-y-3.5 shadow-lg">
+          <div className="p-5 rounded-3xl bg-brand-deep text-white space-y-3.5 shadow-lg">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#46C630]">
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">
                 Régulation & Assistance
               </span>
               <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-emerald-200">
@@ -261,14 +261,14 @@ export default function App() {
                 className="flex items-center justify-between p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition font-mono font-bold text-xs"
               >
                 <span>WhatsApp / Appel : {PHONE_DISPLAY_1}</span>
-                <PhoneCall className="w-3.5 h-3.5 text-[#46C630]" />
+                <PhoneCall className="w-3.5 h-3.5 text-accent" />
               </a>
             </div>
 
             <button
               type="button"
               onClick={() => setIsWorkflowOpen(true)}
-              className="w-full mt-2 py-2 px-3 rounded-xl bg-[#46C630] text-[#07401F] font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-[#58d443] transition cursor-pointer"
+              className="w-full mt-2 py-2 px-3 rounded-xl bg-accent text-heading font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-accent-bright transition cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>Voir le workflow & déploiement Vercel</span>
@@ -278,7 +278,7 @@ export default function App() {
 
         {/* Right Column (Mobile-Style Interactive PWA App Container) */}
         <main className="w-full lg:col-span-7 flex flex-col justify-center">
-          <div className="w-full max-w-[520px] mx-auto bg-[#F6F4EF] sm:rounded-[36px] sm:shadow-[0_24px_60px_rgba(14,21,18,0.14)] sm:border sm:border-[#DAD6CC] overflow-hidden min-h-[92vh] sm:min-h-[780px] flex flex-col justify-between">
+          <div className="w-full max-w-[520px] mx-auto bg-surface sm:rounded-[36px] sm:shadow-[0_24px_60px_rgba(14,21,18,0.14)] sm:border sm:border-line overflow-hidden min-h-[92vh] sm:min-h-[780px] flex flex-col justify-between">
             {/* Top PWA Install Notice */}
             <PWAInstallBanner />
 
@@ -303,7 +303,6 @@ export default function App() {
                     setSelectedService(id);
                     setStep(2);
                   }}
-                  onContinue={() => setStep(2)}
                 />
               )}
 
@@ -353,13 +352,13 @@ export default function App() {
             </div>
 
             {/* Safe Bottom padding & subtle copyright */}
-            <footer className="px-6 py-3 border-t border-[#DAD6CC]/40 text-center text-[10px] text-[#4B5751] flex flex-col sm:flex-row items-center justify-between gap-1">
+            <footer className="px-6 py-3 border-t border-line/40 text-center text-[10px] text-muted flex flex-col sm:flex-row items-center justify-between gap-1">
               <span>
                 TGV Livraison · Siège : <strong className="font-bold">Akpakpa Kpondéhou</strong>
               </span>
               <button
                 onClick={() => setIsWorkflowOpen(true)}
-                className="underline hover:text-[#0B7A4B]"
+                className="underline hover:text-brand"
               >
                 Guide Workflow
               </button>

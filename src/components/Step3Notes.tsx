@@ -79,23 +79,23 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
   return (
     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-[#0E1512] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold font-sora text-ink tracking-tight">
           Destinataire & Précisions
         </h1>
-        <p className="text-sm text-[#4B5751] mt-1">
+        <p className="text-sm text-muted mt-1">
           Renseignez le contact du destinataire et vos repères pour un dépôt rapide.
         </p>
       </div>
 
       {/* Recipient Contact Card (Obligatoire F6) */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-[#DAD6CC] shadow-xs space-y-4">
+      <div className="p-4 sm:p-5 rounded-2xl bg-card border-2 border-line shadow-xs space-y-4">
         <div className="flex items-center gap-2 border-b border-gray-100 pb-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#E3F1E9] text-[#0B7A4B] flex items-center justify-center font-bold text-xs">
+          <div className="w-7 h-7 rounded-lg bg-brand-soft text-brand flex items-center justify-center font-bold text-xs">
             1
           </div>
           <div>
-            <h2 className="text-sm font-bold text-[#0E1512]">Contact du destinataire</h2>
-            <p className="text-[11px] text-[#4B5751]">Obligatoire pour que le livreur puisse le joindre à l'arrivée</p>
+            <h2 className="text-sm font-bold text-ink">Contact du destinataire</h2>
+            <p className="text-[11px] text-muted">Obligatoire pour que le livreur puisse le joindre à l'arrivée</p>
           </div>
         </div>
 
@@ -104,9 +104,9 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
           <div className="space-y-1.5">
             <label
               htmlFor="recipient-name"
-              className="block text-xs font-bold uppercase tracking-wider text-[#4B5751] flex items-center gap-1.5"
+              className="block text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5"
             >
-              <User className="w-3.5 h-3.5 text-[#0B7A4B]" />
+              <User className="w-3.5 h-3.5 text-brand" />
               <span>Nom du destinataire <span className="text-red-500">*</span></span>
             </label>
             <input
@@ -115,10 +115,10 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
               value={recipientName}
               onChange={(e) => onSetRecipientName(e.target.value)}
               placeholder="Ex. : M. Aurel Koudjo"
-              className={`w-full h-12 px-3.5 rounded-xl border-2 text-sm font-medium text-[#0E1512] bg-[#F7F6F2] placeholder:text-[#4B5751]/50 focus:bg-white focus:outline-none transition-all ${
+              className={`w-full h-12 px-3.5 rounded-xl border-2 text-sm font-medium text-ink bg-surface-2 placeholder:text-muted/50 focus:bg-card focus:outline-none transition-all ${
                 touched && !isNameValid
                   ? 'border-red-400 focus:border-red-500 ring-2 ring-red-100'
-                  : 'border-[#DAD6CC] focus:border-[#0B7A4B] focus:ring-2 focus:ring-[#0B7A4B]/20'
+                  : 'border-line focus:border-brand focus:ring-2 focus:ring-brand/20'
               }`}
             />
             {touched && !isNameValid && (
@@ -134,15 +134,15 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="recipient-phone"
-                className="text-xs font-bold uppercase tracking-wider text-[#4B5751] flex items-center gap-1.5"
+                className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5"
               >
-                <Phone className="w-3.5 h-3.5 text-[#0B7A4B]" />
+                <Phone className="w-3.5 h-3.5 text-brand" />
                 <span>Téléphone destinataire <span className="text-red-500">*</span></span>
               </label>
 
               {/* Opérateur détecté ou indicateur de progression */}
               {phoneAnalysis.operator ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E3F1E9] text-[#07401F] border border-[#0B7A4B]/30">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-soft text-heading border border-brand/30">
                   <span
                     className="w-1.5 h-1.5 rounded-full"
                     style={{ backgroundColor: phoneAnalysis.operatorColor || '#0B7A4B' }}
@@ -150,14 +150,14 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
                   {phoneAnalysis.operator}
                 </span>
               ) : phoneAnalysis.digitCount > 0 ? (
-                <span className="text-[10px] font-semibold text-[#4B5751]">
+                <span className="text-[10px] font-semibold text-muted">
                   {phoneAnalysis.digitCount}/10 chiffres
                 </span>
               ) : null}
             </div>
 
             <div className="relative flex">
-              <span className="inline-flex items-center px-3 rounded-l-xl border-2 border-r-0 border-[#DAD6CC] bg-[#E3F1E9] text-xs font-bold text-[#07401F] select-none">
+              <span className="inline-flex items-center px-3 rounded-l-xl border-2 border-r-0 border-line bg-brand-soft text-xs font-bold text-heading select-none">
                 🇧🇯 +229
               </span>
               <input
@@ -169,12 +169,12 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
                 value={recipientPhone}
                 onChange={handlePhoneChange}
                 placeholder="01 97 00 00 00"
-                className={`w-full h-12 px-3.5 rounded-r-xl border-2 text-sm font-semibold tracking-wide text-[#0E1512] bg-[#F7F6F2] placeholder:text-[#4B5751]/40 focus:bg-white focus:outline-none transition-all ${
+                className={`w-full h-12 px-3.5 rounded-r-xl border-2 text-sm font-semibold tracking-wide text-ink bg-surface-2 placeholder:text-muted/40 focus:bg-card focus:outline-none transition-all ${
                   touched && !isPhoneValid
                     ? 'border-red-400 focus:border-red-500 ring-2 ring-red-100'
                     : isPhoneValid
-                    ? 'border-[#0B7A4B] focus:ring-2 focus:ring-[#0B7A4B]/20 bg-emerald-50/20'
-                    : 'border-[#DAD6CC] focus:border-[#0B7A4B] focus:ring-2 focus:ring-[#0B7A4B]/20'
+                    ? 'border-brand focus:ring-2 focus:ring-brand/20 bg-emerald-50/20'
+                    : 'border-line focus:border-brand focus:ring-2 focus:ring-brand/20'
                 }`}
               />
             </div>
@@ -182,7 +182,7 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
             {/* Masque de saisie visuel segmenté (ex: 01 XX XX XX XX) */}
             <div className="pt-1">
               <div className="flex items-center gap-1.5 select-none">
-                <span className="text-[10px] font-bold text-[#4B5751] uppercase tracking-wider mr-1">
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider mr-1">
                   Masque :
                 </span>
                 {phoneAnalysis.slots.map((slot, idx) => (
@@ -190,10 +190,10 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
                     key={idx}
                     className={`flex-1 py-1 text-center rounded-lg text-xs font-mono font-bold transition-all border ${
                       slot.isFilled
-                        ? 'bg-[#E3F1E9] text-[#07401F] border-[#0B7A4B]/40 shadow-xs'
+                        ? 'bg-brand-soft text-heading border-brand/40 shadow-xs'
                         : idx === 0 && phoneAnalysis.digitCount === 0
                         ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : 'bg-[#F7F6F2] text-[#8E9F97] border-[#DAD6CC]/70'
+                        : 'bg-surface-2 text-muted-2 border-line/70'
                     }`}
                   >
                     {slot.text}
@@ -221,14 +221,14 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
                 <span>{phoneAnalysis.error}</span>
               </p>
             ) : isPhoneValid ? (
-              <p className="text-[11px] text-[#0B7A4B] flex items-center gap-1 font-semibold pt-0.5">
+              <p className="text-[11px] text-brand flex items-center gap-1 font-semibold pt-0.5">
                 <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
                 <span>
                   Numéro valide {phoneAnalysis.operator ? `· ${phoneAnalysis.operator}` : '· Format 10 chiffres'}
                 </span>
               </p>
             ) : (
-              <p className="text-[10px] text-[#4B5751] pt-0.5">
+              <p className="text-[10px] text-muted pt-0.5">
                 Format national béninois à 10 chiffres (ex. : <strong>01 97 00 00 00</strong>)
               </p>
             )}
@@ -240,9 +240,9 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
       <div className="space-y-2">
         <label
           htmlFor="order-note"
-          className="block text-xs font-bold uppercase tracking-wider text-[#4B5751] flex items-center gap-1.5"
+          className="block text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5"
         >
-          <MessageSquare className="w-3.5 h-3.5 text-[#0B7A4B]" />
+          <MessageSquare className="w-3.5 h-3.5 text-brand" />
           Repère ou instruction pour le coursier (optionnel)
         </label>
         <textarea
@@ -251,7 +251,7 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
           value={note}
           onChange={(e) => onSetNote(e.target.value)}
           placeholder="Ex. : En face de la pharmacie, 2e portail à gauche après les pavés."
-          className="w-full p-4 rounded-2xl border-2 border-[#DAD6CC] bg-white text-sm font-medium text-[#0E1512] placeholder:text-[#4B5751]/50 focus:border-[#0B7A4B] focus:outline-none focus:ring-3 focus:ring-[#0B7A4B]/20 transition-all resize-none"
+          className="w-full p-4 rounded-2xl border-2 border-line bg-card text-sm font-medium text-ink placeholder:text-muted/50 focus:border-brand focus:outline-none focus:ring-3 focus:ring-brand/20 transition-all resize-none"
         />
 
         {/* Quick snippets chips */}
@@ -264,7 +264,7 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
                 const updated = note ? `${note}. ${snip}` : snip;
                 onSetNote(updated);
               }}
-              className="text-[11px] px-2.5 py-1 rounded-lg bg-white border border-[#DAD6CC] hover:bg-[#E3F1E9] text-[#4B5751] transition"
+              className="text-[11px] px-2.5 py-1 rounded-lg bg-card border border-line hover:bg-brand-soft text-muted transition"
             >
               + {snip}
             </button>
@@ -274,8 +274,8 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
 
       {/* Priority Selector */}
       <div className="space-y-2">
-        <label className="block text-xs font-bold uppercase tracking-wider text-[#4B5751] flex items-center gap-1.5">
-          <Zap className="w-3.5 h-3.5 text-[#0B7A4B]" />
+        <label className="block text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
+          <Zap className="w-3.5 h-3.5 text-brand" />
           Priorité de livraison
         </label>
 
@@ -286,15 +286,15 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
             onClick={() => onSetUrgent(0)}
             className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
               urgent === 0
-                ? 'border-[#0B7A4B] bg-[#E3F1E9]/40 shadow-xs ring-2 ring-[#0B7A4B]/20'
-                : 'border-[#DAD6CC] bg-white hover:border-[#0B7A4B]/40'
+                ? 'border-brand bg-brand-soft/40 shadow-xs ring-2 ring-brand/20'
+                : 'border-line bg-card hover:border-brand/40'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-sora font-bold text-sm text-[#0E1512]">Standard</span>
-              <Clock className="w-4 h-4 text-[#0B7A4B]" />
+              <span className="font-sora font-bold text-sm text-ink">Standard</span>
+              <Clock className="w-4 h-4 text-brand" />
             </div>
-            <p className="text-xs text-[#4B5751]">
+            <p className="text-xs text-muted">
               Course régulière dans la tournée de notre motard.
             </p>
           </button>
@@ -305,20 +305,20 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
             onClick={() => onSetUrgent(1)}
             className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
               urgent === 1
-                ? 'border-[#0B7A4B] bg-[#E3F1E9]/40 shadow-xs ring-2 ring-[#0B7A4B]/20'
-                : 'border-[#DAD6CC] bg-white hover:border-[#0B7A4B]/40'
+                ? 'border-brand bg-brand-soft/40 shadow-xs ring-2 ring-brand/20'
+                : 'border-line bg-card hover:border-brand/40'
             }`}
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="font-sora font-bold text-sm text-[#07401F] flex items-center gap-1">
-                <Zap className="w-3.5 h-3.5 fill-[#0B7A4B] text-[#0B7A4B]" />
+              <span className="font-sora font-bold text-sm text-heading flex items-center gap-1">
+                <Zap className="w-3.5 h-3.5 fill-brand text-brand" />
                 Urgent Express
               </span>
-              <span className="text-[10px] font-extrabold uppercase bg-[#46C630] text-[#07401F] px-1.5 py-0.5 rounded">
+              <span className="text-[10px] font-extrabold uppercase bg-accent text-heading px-1.5 py-0.5 rounded">
                 Prioritaire
               </span>
             </div>
-            <p className="text-xs text-[#4B5751]">
+            <p className="text-xs text-muted">
               Départ immédiat, motard dédié exclusivement à votre colis.
             </p>
           </button>
@@ -326,15 +326,15 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
       </div>
 
       {/* Recap Route Card */}
-      <div className="p-4 rounded-2xl bg-[#E3F1E9] border border-[#0B7A4B]/20 flex items-center justify-between shadow-xs">
+      <div className="p-4 rounded-2xl bg-brand-soft border border-brand/20 flex items-center justify-between shadow-xs">
         <div>
-          <div className="text-xs font-bold text-[#0B7A4B] flex items-center gap-1">
+          <div className="text-xs font-bold text-brand flex items-center gap-1">
             <Compass className="w-3.5 h-3.5" />
             <span>
               {dep.name} → {dst.name}
             </span>
           </div>
-          <div className="text-xs text-[#4B5751] mt-0.5 font-medium">
+          <div className="text-xs text-muted mt-0.5 font-medium">
             {tarifDisponible ? (
               <>
                 Distance officielle : <b>~{formatDistance(distance)}</b> · Tarif officiel
@@ -346,10 +346,10 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
         </div>
 
         <div className="text-right">
-          <span className="text-xs text-[#4B5751] block font-medium">
+          <span className="text-xs text-muted block font-medium">
             {tarifDisponible ? 'Total officiel' : 'Tarif'}
           </span>
-          <span className="font-sora font-extrabold text-2xl text-[#07401F]">{tarifAffiche}</span>
+          <span className="font-sora font-extrabold text-2xl text-heading">{tarifAffiche}</span>
         </div>
       </div>
 
@@ -358,7 +358,7 @@ export const Step3Notes: React.FC<Step3NotesProps> = ({
         <button
           type="button"
           onClick={handleProceed}
-          className="cta btn-ripple w-full h-14 rounded-2xl bg-[#0B7A4B] text-white font-sora font-bold text-base hover:bg-[#07401F] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          className="cta btn-ripple w-full h-14 rounded-2xl bg-brand-solid text-white font-sora font-bold text-base hover:bg-brand-deep hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>{tarifDisponible ? `Continuer · ${tarifAffiche}` : 'Continuer'}</span>
         </button>

@@ -31,10 +31,10 @@ export const PWAUpdatePrompt: React.FC = () => {
       aria-live="polite"
       className="fixed inset-x-0 bottom-4 z-40 px-4 pointer-events-none"
     >
-      <div className="pointer-events-auto mx-auto max-w-[520px] flex items-center gap-3 p-3.5 rounded-2xl bg-[#07401F] text-white border border-white/10 shadow-[0_16px_40px_rgba(14,21,18,0.35)]">
+      <div className="pointer-events-auto mx-auto max-w-[520px] flex items-center gap-3 p-3.5 rounded-2xl bg-brand-deep text-white border border-white/10 shadow-[0_16px_40px_rgba(14,21,18,0.35)]">
         <div
           className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-            needRefresh ? 'bg-[#46C630] text-[#07401F]' : 'bg-white/10 text-[#46C630]'
+            needRefresh ? 'bg-accent text-heading' : 'bg-white/10 text-accent'
           }`}
         >
           {needRefresh ? (
@@ -60,7 +60,7 @@ export const PWAUpdatePrompt: React.FC = () => {
             <button
               type="button"
               onClick={() => updateServiceWorker(true)}
-              className="px-3 py-2 rounded-xl bg-[#46C630] text-[#07401F] text-xs font-bold hover:bg-[#58d443] active:scale-95 transition cursor-pointer"
+              className="px-3 py-2 rounded-xl bg-accent text-heading text-xs font-bold hover:bg-accent-bright active:scale-95 transition cursor-pointer"
             >
               Recharger
             </button>

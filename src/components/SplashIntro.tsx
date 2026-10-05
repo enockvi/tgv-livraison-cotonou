@@ -74,7 +74,7 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
       role="dialog"
       aria-modal="true"
       aria-label="Introduction TGV Livraison"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden select-none bg-[#07401F]"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden select-none bg-brand-deep"
       style={{
         background:
           'radial-gradient(circle at 50% 50%, rgba(70, 198, 48, 0.16) 0%, transparent 60%), linear-gradient(165deg, #0C6B32 0%, #07401F 55%, #042613 100%)',
@@ -82,15 +82,15 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
     >
       {/* Background speed streaks */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-1/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#46C630] to-transparent animate-pulse" />
-        <div className="absolute top-3/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#46C630] to-transparent animate-pulse" />
+        <div className="absolute top-1/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" />
+        <div className="absolute top-3/4 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent to-transparent animate-pulse" />
       </div>
 
       <div className="relative w-full max-w-2xl px-6 flex flex-col items-center">
         {/* Road line */}
         <div className="w-full h-[1px] bg-white/20 mb-8 relative">
           <div
-            className="absolute top-0 bottom-0 bg-[#46C630] shadow-[0_0_8px_#46C630]"
+            className="absolute top-0 bottom-0 bg-accent shadow-[0_0_8px_#46C630]"
             style={{
               left: 0,
               width: `${progress * 100}%`,
@@ -171,7 +171,7 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
               transition: 'clip-path 0.05s linear',
             }}
           >
-            TGV <span className="text-[#46C630]">Livraison</span>
+            TGV <span className="text-accent">Livraison</span>
           </h1>
 
           <p
@@ -187,7 +187,7 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
         <div className="mt-8 flex flex-col items-center gap-3">
           <button
             onClick={() => onComplete()}
-            className="group flex items-center gap-3 px-6 py-3 rounded-full bg-[#46C630] text-[#07401F] font-bold text-sm tracking-wide shadow-[0_8px_20px_rgba(70,198,48,0.35)] hover:bg-[#58d443] transition-all transform hover:scale-105 active:scale-95"
+            className="group flex items-center gap-3 px-6 py-3 rounded-full bg-accent text-heading font-bold text-sm tracking-wide shadow-[0_8px_20px_rgba(70,198,48,0.35)] hover:bg-accent-bright transition-all transform hover:scale-105 active:scale-95"
           >
             <Zap className="w-4 h-4 fill-current" />
             <span>Commander une course</span>
