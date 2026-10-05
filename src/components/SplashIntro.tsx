@@ -1,135 +1,76 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
+
+// `?raw` : le contenu de Splashscreem.html (racine du projet) est intégré TEL QUEL au bundle.
+// Ce fichier est donc l'unique source de vérité du splash — aucun portage, aucun décalage possible.
+import splashHtml from '../../Splashscreem.html?raw';
 
 interface SplashIntroProps {
   onComplete: () => void;
 }
 
-/** Durée d'affichage du slogan une fois le motard arrivé au bout. */
+/** Doit rester aligné sur la constante HOLD_MS du fichier Splashscreem.html. */
 const HOLD_MS = 900;
 
-/** Marge (px) ajoutée de part et d'autre du trajet du motard. */
-const RIDER_MARGIN = 40;
+/** Marge de sécurité si la détection de fin d'animation est indisponible. */
+const SAFETY_MARGIN_MS = 400;
 
 /**
- * SplashIntro — portage fidèle de la maquette `Splashscreem.html` (racine du projet).
+ * SplashIntro — affiche la maquette `Splashscreem.html` à l'identique.
  *
- * Principes conservés à l'identique :
- *  - scène en position absolue, route horizontale fixée à 52 % de la hauteur ;
- *  - motard ancré sur la route (`bottom: calc(48% - 1px)`) et non dans le flux flex ;
- *  - le titre est révélé par `clip-path` en fonction de la position exacte du motard ;
- *  - typographie Sora 800 inclinée (`skewX(-9deg)`) avec tailles `clamp()` fluides ;
- *  - durée proportionnelle à la largeur de l'écran ;
- *  - `prefers-reduced-motion` court-circuite l'animation.
+ * Choix technique : le fichier est injecté dans une iframe `srcDoc`. Un document
+ * `srcdoc` hérite de l'origine de la page, on peut donc observer son DOM sans le
+ * modifier : l'élément `#tag` reçoit la classe `on` quand l'animation est terminée
+ * (voir `finish()` dans Splashscreem.html). On en déduit le moment où rendre la main
+ * à l'application — le fichier reste ainsi inchangé et demeure la source exacte.
  *
- * Intégration applicative : un tap (ou Entrée / Espace / Échap) passe immédiatement
- * à l'application ; sinon l'écran se termine seul après l'animation.
+ * Un calque transparent au-dessus de l'iframe sert de bouton « passer » : le fichier
+ * ne reçoit aucun clic, son propre gestionnaire (rejouer) n'est jamais déclenché.
  */
 export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
-  const stageRef = useRef<HTMLDivElement>(null);
-  const riderRef = useRef<HTMLDivElement>(null);
-  const wordRef = useRef<HTMLDivElement>(null);
-
-  const [tagVisible, setTagVisible] = useState(false);
-  const finishedRef = useRef(false);
-  const rafRef = useRef<number | undefined>(undefined);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const observerRef = useRef<MutationObserver | undefined>(undefined);
   const holdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const safetyRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const doneRef = useRef(false);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  const finish = useCallback(() => {
-    if (finishedRef.current) return;
-    finishedRef.current = true;
-
-    const stage = stageRef.current;
-    const rider = riderRef.current;
-    const word = wordRef.current;
-
-    if (word) word.style.clipPath = 'none';
-    if (stage && rider) rider.style.transform = `translateX(${stage.clientWidth + 200}px)`;
-
-    setTagVisible(true);
-    holdRef.current = setTimeout(() => onCompleteRef.current(), HOLD_MS);
+  const complete = useCallback(() => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    onCompleteRef.current();
   }, []);
 
-  const play = useCallback(() => {
-    if (finishedRef.current) return;
-
-    const stage = stageRef.current;
-    const rider = riderRef.current;
-    const word = wordRef.current;
-    if (!stage || !rider || !word) return;
-
-    const reduceMotion =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) {
-      finish();
-      return;
-    }
-
-    const width = stage.clientWidth;
-    const riderWidth = rider.offsetWidth || 96;
-    const from = -riderWidth - RIDER_MARGIN;
-    const to = width + RIDER_MARGIN;
-    // Plus l'écran est large, plus le trajet dure (même courbe que la maquette).
-    const duration = 2200 + width * 0.9;
-    const start = performance.now();
-
-    // Boîte du titre mesurée AVANT l'animation : c'est elle qui détermine la découpe.
-    const wordBox = word.getBoundingClientRect();
-    const stageLeft = stage.getBoundingClientRect().left;
-
-    word.style.clipPath = 'inset(-12px 100% -12px 0)';
-
-    const frame = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const x = from + (to - from) * progress;
-      rider.style.transform = `translateX(${x}px)`;
-
-      const edge = x + riderWidth * 0.06 + stageLeft - wordBox.left;
-      const cut = Math.max(-20, Math.min(wordBox.width, wordBox.width - edge));
-      word.style.clipPath = `inset(-12px ${cut}px -12px 0)`;
-
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(frame);
-      } else {
-        finish();
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(frame);
-  }, [finish]);
-
-  // Démarrage après le chargement des polices : évite un reflow du titre en pleine animation.
+  // Accessibilité : si l'utilisateur limite les animations, on entre directement dans l'app.
   useEffect(() => {
-    let cancelled = false;
-    let startTimer: ReturnType<typeof setTimeout> | undefined;
-
-    const start = () => {
-      if (cancelled) return;
-      startTimer = setTimeout(() => {
-        if (!cancelled) play();
-      }, 250);
-    };
-
-    const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
-    if (fonts && fonts.ready) {
-      fonts.ready.then(start).catch(start);
-    } else {
-      start();
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      complete();
     }
+  }, [complete]);
 
+  // Filet de sécurité : si l'observation du DOM échoue, on calcule la durée de l'animation
+  // avec la même formule que Splashscreem.html (2200 + largeur * 0.9) + le délai de départ.
+  useEffect(() => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 400;
+    const estimated = 250 + (2200 + width * 0.9) + HOLD_MS + SAFETY_MARGIN_MS;
+    safetyRef.current = setTimeout(complete, estimated);
     return () => {
-      cancelled = true;
-      if (startTimer !== undefined) clearTimeout(startTimer);
-      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
-      if (holdRef.current !== undefined) clearTimeout(holdRef.current);
+      if (safetyRef.current !== undefined) clearTimeout(safetyRef.current);
     };
-  }, [play]);
+  }, [complete]);
+
+  // Nettoyage des observateurs et minuteries.
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (holdRef.current !== undefined) clearTimeout(holdRef.current);
+      if (safetyRef.current !== undefined) clearTimeout(safetyRef.current);
+    };
+  }, []);
 
   // Bloquer le défilement de l'arrière-plan tant que l'intro est affichée.
   useEffect(() => {
@@ -140,149 +81,60 @@ export const SplashIntro: React.FC<SplashIntroProps> = ({ onComplete }) => {
     };
   }, []);
 
-  // Passer l'intro immédiatement (tap, Entrée, Espace ou Échap).
-  const skip = useCallback(() => {
-    if (finishedRef.current && holdRef.current === undefined) return;
-    if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
-    if (holdRef.current !== undefined) clearTimeout(holdRef.current);
-    finishedRef.current = true;
-    onCompleteRef.current();
-  }, []);
+  const handleFrameLoad = useCallback(() => {
+    const doc = frameRef.current?.contentDocument;
+    if (!doc) return;
+
+    const tag = doc.getElementById('tag');
+    if (!tag) return;
+
+    // `finish()` ajoute la classe « on » : c'est le signal de fin, sans toucher au fichier.
+    const checkDone = () => {
+      if (!tag.classList.contains('on')) return;
+      if (holdRef.current !== undefined) return;
+      holdRef.current = setTimeout(complete, HOLD_MS);
+    };
+
+    checkDone();
+
+    if (typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver(checkDone);
+      observer.observe(tag, { attributes: true, attributeFilter: ['class'] });
+      observerRef.current = observer;
+    }
+  }, [complete]);
 
   return (
     <div
-      ref={stageRef}
-      role="button"
-      tabIndex={0}
-      aria-label="Introduction TGV Livraison. Touchez pour passer."
-      onClick={skip}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ' || event.key === 'Escape') {
-          event.preventDefault();
-          skip();
-        }
-      }}
-      className="fixed inset-0 z-50 overflow-hidden select-none cursor-pointer outline-none"
-      style={{
-        background:
-          'radial-gradient(circle at 50% 52%, rgba(70, 198, 48, 0.16), transparent 55%), linear-gradient(165deg, #0C6B32 0%, #07401F 55%, #052C16 100%)',
-      }}
+      className="fixed inset-0 z-50 overflow-hidden bg-[#07401F]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Introduction TGV Livraison"
     >
-      {/* Route */}
-      <div
+      <iframe
+        ref={frameRef}
+        title="Animation d'introduction TGV Livraison"
+        srcDoc={splashHtml}
+        onLoad={handleFrameLoad}
+        scrolling="no"
+        tabIndex={-1}
         aria-hidden="true"
         style={{
-          position: 'absolute',
-          left: 'max(12px, 4vw)',
-          right: 'max(12px, 4vw)',
-          top: '52%',
-          height: 1,
-          background: 'rgba(255, 255, 255, 0.16)',
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          border: 0,
+          pointerEvents: 'none',
         }}
       />
 
-      {/* Titre — révélé au passage du motard */}
-      <div
-        ref={wordRef}
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 'calc(48% + 10px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          clipPath: 'inset(-12px 100% -12px 0)',
-        }}
-      >
-        <span
-          className="font-sora"
-          style={{
-            display: 'inline-block',
-            transform: 'skewX(-9deg)',
-            fontSize: 'clamp(28px, 9vw, 76px)',
-            lineHeight: 1.15,
-            fontWeight: 800,
-            letterSpacing: '-0.02em',
-            color: '#ffffff',
-          }}
-        >
-          TGV <b style={{ color: '#46C630', fontWeight: 'inherit' }}>Livraison</b>
-        </span>
-      </div>
-
-      {/* Slogan */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 'calc(52% + 22px)',
-          textAlign: 'center',
-          padding: '0 clamp(16px, 6vw, 32px)',
-          fontSize: 'clamp(13px, 3.8vw, 18px)',
-          fontWeight: 500,
-          color: 'rgba(255, 255, 255, 0.75)',
-          opacity: tagVisible ? 1 : 0,
-          transform: tagVisible ? 'none' : 'translateY(6px)',
-          transition: 'opacity 0.7s ease, transform 0.7s ease',
-        }}
-      >
-        Livré à temps, reçu avec le sourire
-      </div>
-
-      {/* Motard (roues ancrées sur la route) */}
-      <div
-        ref={riderRef}
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: 0,
-          bottom: 'calc(48% - 1px)',
-          width: 'clamp(72px, 20vw, 120px)',
-          willChange: 'transform',
-          transform: 'translateX(-200px)',
-        }}
-      >
-        <svg
-          viewBox="0 0 96 64"
-          fill="none"
-          style={{ display: 'block', width: '100%', height: 'auto', overflow: 'visible' }}
-        >
-          <path
-            d="M-46 32h40M-32 42h26M-40 22h32"
-            stroke="#46C630"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            opacity="0.9"
-          />
-          <rect x="6" y="22" width="22" height="18" rx="3" fill="#46C630" />
-          <path d="M22 44L58 44L62 38L48 34L30 36Z" fill="#fff" />
-          <path
-            d="M40 34L52 38L54 46"
-            stroke="#fff"
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path d="M36 34L44 14L52 16L48 34Z" fill="#fff" />
-          <path d="M50 18L64 26" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="48" cy="8" r="6.5" fill="#fff" />
-          <path
-            d="M78 48L68 28L62 30M64 27L72 26"
-            stroke="#fff"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <g className="splash-wheel">
-            <circle cx="20" cy="48" r="10" stroke="#fff" strokeWidth="3" />
-            <circle cx="20" cy="41" r="1.8" fill="#46C630" />
-          </g>
-          <g className="splash-wheel">
-            <circle cx="78" cy="48" r="10" stroke="#fff" strokeWidth="3" />
-            <circle cx="78" cy="41" r="1.8" fill="#46C630" />
-          </g>
-        </svg>
-      </div>
+      {/* Calque de sortie : un tap n'importe où passe immédiatement à l'application. */}
+      <button
+        type="button"
+        onClick={complete}
+        aria-label="Passer l'introduction et accéder à l'application"
+        className="absolute inset-0 w-full h-full cursor-pointer bg-transparent outline-none"
+      />
     </div>
   );
 };

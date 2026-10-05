@@ -118,24 +118,6 @@
   }
 }
 
-/* Splash — rotation des roues du motard.
-   `transform-box: fill-box` est indispensable pour qu'un <g> SVG tourne
-   autour de son propre centre (sinon les roues sont excentrées : c'était
-   la cause du rendu déformé). */
-@keyframes splash-wheel-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.splash-wheel {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: splash-wheel-spin 0.35s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .splash-wheel {
-    animation: none;
-  }
-}
+/* Le splash (Splashscreem.html) est injecté tel quel dans une iframe `srcDoc` :
+   ses styles — y compris la rotation des roues — vivent dans son propre document,
+   il n'y a donc plus rien à définir ici. */
