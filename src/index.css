@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #F6F4EF;
+  --foreground: #0E1512;
+}
+
+.dark {
+  --background: #0E1512;
+  --foreground: #F6F4EF;
+}
+
+/* Ripple wave & Button micro-interactions */
+.cta,
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease, background-color 0.18s ease;
+}
+
+.cta:hover:not(:disabled),
+.btn-ripple:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 24px rgba(11, 122, 75, 0.28);
+}
+
+.cta:active:not(:disabled),
+.btn-ripple:active:not(:disabled) {
+  transform: translateY(0.5px) scale(0.985);
+  box-shadow: 0 2px 8px rgba(11, 122, 75, 0.15);
+}
+
+.ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.48);
+  pointer-events: none;
+  animation: ripple-wave 0.65s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  transform-origin: center;
+}
+
+.ripple-circle.ripple-dark {
+  background: rgba(7, 64, 31, 0.22);
+}
+
+.dark .ripple-circle.ripple-dark {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@keyframes ripple-wave {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}

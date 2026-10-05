@@ -1,0 +1,72 @@
+{
+  "communes": {
+    "cotonou": "Cotonou",
+    "calavi": "Abomey-Calavi",
+    "portonovo": "Porto-Novo",
+    "ouidah": "Ouidah & Pahou",
+    "seme": "Sémè-Podji"
+  },
+  "quartiersByCommune": {
+    "cotonou": [
+      "Agla",
+      "Akpakpa Centre",
+      "Akpakpa Dodomè",
+      "Akpakpa PK3",
+      "Cadjehoun",
+      "Dantokpa",
+      "Étoile Rouge",
+      "Fidjrossè",
+      "Ganhi",
+      "Gbégamey",
+      "Haie Vive",
+      "Jéricho / Marocana",
+      "Kouhounou",
+      "Menontin",
+      "Patte d'Oie",
+      "Sainte Rita",
+      "Vèdoko",
+      "Zongo"
+    ],
+    "calavi": [
+      "Akassato",
+      "Arconville",
+      "Calavi Kpota",
+      "Cococodji",
+      "Godomey",
+      "IITA",
+      "Tankpè",
+      "Togoudo",
+      "UAC (campus)",
+      "Womey",
+      "Zogbadjè",
+      "Zopah",
+      "Zoundja"
+    ],
+    "portonovo": [
+      "Agbokou (centre)",
+      "Akron",
+      "Attakè",
+      "Djassin",
+      "Dowa",
+      "Gbèçon",
+      "Houinmè",
+      "Louho",
+      "Ouando",
+      "Tokpota",
+      "Zounkpa"
+    ],
+    "ouidah": [
+      "Avlékété",
+      "Centre-ville (Place Chacha)",
+      "Djègbadji",
+      "Gakpè",
+      "Houakpè-Daho",
+      "Kpassè",
+      "Pahou",
+      "Savi",
+      "Tovè",
+      "Zoungbodji"
+    ],
+    "seme": []
+  }
+}

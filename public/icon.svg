@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0C6B32" />
+      <stop offset="60%" stop-color="#07401F" />
+      <stop offset="100%" stop-color="#042613" />
+    </linearGradient>
+    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#46C630" />
+      <stop offset="100%" stop-color="#5EE545" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)" />
+
+  <!-- Speed trails -->
+  <g stroke="url(#neonGreen)" stroke-width="12" stroke-linecap="round" opacity="0.95">
+    <line x1="40" y1="230" x2="150" y2="230" />
+    <line x1="70" y1="265" x2="175" y2="265" />
+    <line x1="30" y1="300" x2="130" y2="300" />
+  </g>
+
+  <!-- Ground road subtle line -->
+  <line x1="45" y1="375" x2="467" y2="375" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Delivery Top-Box -->
+  <rect x="155" y="200" width="85" height="75" rx="14" fill="#46C630" />
+
+  <!-- Motorcycle Body & Frame -->
+  <path d="M210 320 L350 320 L380 270 L300 250 L235 260 Z" fill="#FFFFFF" />
+
+  <!-- Rider Body & Arms -->
+  <!-- Rider Torso -->
+  <path d="M260 250 L295 145 L335 155 L310 250 Z" fill="#FFFFFF" />
+  <!-- Rider Head / Helmet -->
+  <circle cx="310" cy="115" r="32" fill="#FFFFFF" />
+  <!-- Rider Arm stretching to handlebars -->
+  <path d="M315 175 L385 210" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" />
+  <!-- Handlebars & Front fork -->
+  <path d="M425 345 L385 220 L360 225" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Rider Leg -->
+  <path d="M275 250 L330 280 L340 325" stroke="#FFFFFF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Wheels -->
+  <!-- Rear Wheel -->
+  <circle cx="205" cy="345" r="42" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <circle cx="205" cy="345" r="10" fill="#46C630" />
+  <!-- Front Wheel -->
+  <circle cx="425" cy="345" r="42" fill="none" stroke="#FFFFFF" stroke-width="14" />
+  <circle cx="425" cy="345" r="10" fill="#46C630" />
+
+  <!-- Badge Text -->
+  <text x="256" y="445" text-anchor="middle" font-family="'Sora', 'Plus Jakarta Sans', system-ui, sans-serif" font-weight="900" font-size="44" fill="#FFFFFF" letter-spacing="-1">TGV <tspan fill="#46C630">LIVRAISON</tspan></text>
+</svg>

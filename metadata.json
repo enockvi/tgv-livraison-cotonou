@@ -1,0 +1,10 @@
+{
+  "name": "TGV Livraison Cotonou",
+  "description": "Application PWA officielle de TGV Livraison à Cotonou, Abomey-Calavi, Sémè-Podji et Porto-Novo. Commandez une livraison express en 4 étapes simples.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

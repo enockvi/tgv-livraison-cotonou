@@ -1,0 +1,31 @@
+{
+  "id": "/",
+  "name": "TGV Livraison Cotonou",
+  "short_name": "TGVLivraison",
+  "description": "Livraison express à Cotonou, Calavi, Sémè et Porto-Novo. Commandez une course en 4 étapes simples.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#07401F",
+  "theme_color": "#07401F",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

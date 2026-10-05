@@ -1,0 +1,15 @@
+# Normalisation des fins de ligne : Git stocke en LF (Linux/Vercel) et gère la conversion locale.
+* text=auto
+
+# Fichiers binaires : jamais convertis.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.avif binary
+
+# Verrous de dépendances : pas de conversion (évite les diffs bruyants).
+bun.lock -text
+package-lock.json -text
